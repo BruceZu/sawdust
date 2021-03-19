@@ -28,7 +28,7 @@ public class Leetcode1044LongestDuplicateSubstring {
      s consists of lowercase English letters.
     */
     int N = s.length();
-    int M = 46337; // Mersenne prime
+    int M = 8191; // Mersenne prime
     int[] power = new int[N]; //  (base ^ i) % M
     for (int i = 0; i < N; ++i) {
       power[i] = (i == 0) ? 1 : (power[i - 1] * 26) % M;
