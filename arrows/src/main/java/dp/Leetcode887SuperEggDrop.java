@@ -15,10 +15,66 @@
 
 package dp;
 
+import jdk.nashorn.internal.runtime.ECMAException;
+
 import java.sql.SQLOutput;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Leetcode887SuperEggDrop {
+  // ---------------- least_drops(floors, eggs)  -----------------------------------
+  Map<Integer, Integer> memo = new HashMap();
+  // O(K*N*logN) time
+  public int superEggDrop4(int K, int N) {
+    if (!memo.containsKey(N * 100 + K)) {
+      int r;
+      if (N == 0) r = 0;
+      else if (K == 1) r = N;
+      else {
+        int l = 1, h = N;
+        while (l + 1 < h) {
+          int m = (l + h) / 2;
+          int t1 = superEggDrop4(K - 1, m - 1);
+          int t2 = superEggDrop4(K, N - m);
+
+          if (t1 < t2) l = m; // l is known as it comes from middle
+          else if (t1 > t2) h = m; // h is known as it comes from middle
+          else l = h = m; // m is just the cross point
+        }
+        // result is l or h, so need check both of them
+        r =
+            1
+                + Math.min(
+                    Math.max(superEggDrop4(K - 1, l - 1), superEggDrop4(K, N - l)),
+                    Math.max(superEggDrop4(K - 1, h - 1), superEggDrop4(K, N - h)));
+      }
+      memo.put(N * 100 + K, r);
+    }
+    return memo.get(N * 100 + K);
+  }
+
+  // O(KN)
+  public static int superEggDrop3(int K, int N) {
+    int[] dp = new int[N + 1];
+    for (int i = 0; i <= N; ++i) dp[i] = i; // 1 egg column
+    for (int k = 2; k <= K; ++k) { // start from 2 eggs column
+      int[] dp2 = new int[N + 1]; // current k eggs column
+      int o = 1; // nearest floor to intersect point of last loop. initial is 1 for n==1;
+      for (int n = 1; n <= N; ++n) { // start from 1 floor row
+        // n - (o + 1) >= 0 means o < n
+        while (n - (o + 1) >= 0
+            && Math.max(dp[o - 1], dp2[n - o]) > Math.max(dp[o], dp2[n - (o + 1)])) o++;
+        // The final answer happens at this x.
+        dp2[n] = 1 + Math.max(dp[o - 1], dp2[n - o]);
+      }
+      dp = dp2;
+    }
+    return dp[N];
+  }
+
+  // ---------------- max_floors(eggs,drops)  ------------------------------------
+  // O( K*T)
   public static int superEggDrop2(int K, int F) {
     // One egg with T drops at most can judge T floors
     // K egg with 1 drop at most can jude 1 floor
@@ -54,7 +110,7 @@ public class Leetcode887SuperEggDrop {
   // ---------------
   // Let k = 2,F = 100
   // O(K*logN) N is given max floor
-  public static int superEggDrop(int K, int Fmax) {
+  public static int superEggDrop1(int K, int Fmax) {
     /*  1 <= K <= 100
     1 <= N <= 10000  */
     // binary search
@@ -85,6 +141,7 @@ public class Leetcode887SuperEggDrop {
   }
 
   public static void main(String[] args) {
-    System.out.println(superEggDrop(6, 200));
+    System.out.println(superEggDrop3(2, 6) == 3);
+    System.out.println(superEggDrop1(6, 200) == 8);
   }
 }

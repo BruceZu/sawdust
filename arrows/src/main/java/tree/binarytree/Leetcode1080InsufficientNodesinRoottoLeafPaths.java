@@ -62,123 +62,109 @@ package tree.binarytree;
 // POST order
 public class Leetcode1080InsufficientNodesinRoottoLeafPaths {
 
-    /**
-     * <pre>
-     * Definition for a binary tree node.
-     * public class TreeNode {
-     *     int val;
-     *     TreeNode left;
-     *     TreeNode right;
-     *     TreeNode(int x) { val = x; }
-     * }
-     */
-    static class TreeNode {
-        int val;
-        TreeNode left;
-        TreeNode right;
+  /**
+   * <pre>
+   * Definition for a binary tree node.
+   * public class TreeNode {
+   *     int val;
+   *     TreeNode left;
+   *     TreeNode right;
+   *     TreeNode(int x) { val = x; }
+   * }
+   */
+  static class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
 
-        TreeNode(int value) {
-            val = value;
-        }
+    TreeNode(int value) {
+      val = value;
+    }
+  }
+
+  public static TreeNode sufficientSubset(TreeNode root, int limit) {
+    if (root == null) return null;
+    if (root.right == null && root.left == null) return root.val < limit ? null : root;
+
+    if (root.left != null) root.left = sufficientSubset(root.left, limit - root.val);
+    if (root.right != null) root.right = sufficientSubset(root.right, limit - root.val);
+    // root ever has at least one child, but now all are gone caused by not match the limit.
+    // So root need not exist anymore.
+    return root.left == null && root.right == null ? null : root;
+  }
+
+  public static TreeNode sufficientSubset3(TreeNode root, int limit) {
+    if (root == null) return null;
+    return maxPathSum(root, 0, limit) < limit ? null : root;
+  }
+
+  // assume node is not null
+  private static long maxPathSum(TreeNode node, long sum, int limit) {
+    if (node.left == null && node.right == null) // leaf
+    return sum + node.val;
+
+    if (node.left == null && node.right != null) {
+      long rSum = maxPathSum(node.right, sum + node.val, limit);
+      if (rSum < limit) node.right = null;
+      return rSum;
+    }
+    if (node.left != null && node.right == null) {
+      long lSum = maxPathSum(node.left, sum + node.val, limit);
+      if (lSum < limit) node.left = null;
+      return lSum;
     }
 
-    public static TreeNode sufficientSubset2(TreeNode root, int limit) {
-        if (root == null) return null;
+    long lSum = maxPathSum(node.left, sum + node.val, limit);
+    long rSum = maxPathSum(node.right, sum + node.val, limit);
+    if (lSum < limit) node.left = null;
+    if (rSum < limit) node.right = null;
+    return Math.max(lSum, rSum);
+  }
 
-        // reach the bottom
-        if (root.right == null && root.left == null) {
-            // leaf
-            return root.val < limit ? null : root;
-        }
+  // test ---------------------------------------------------------------------
+  public static void main(String[] args) {
+    // [0, null, -1, null, null];
+    // limit = 0;
+    // expected return is null
 
-        // continue recursion
-        if (root.left != null) {
-            root.left = sufficientSubset(root.left, limit - root.val);
-        }
-        if (root.right != null) {
-            root.right = sufficientSubset(root.right, limit - root.val);
-        }
-        return root.left == null && root.right == null ? null : root;
-    }
+    TreeNode root = new TreeNode(0);
+    root.right = new TreeNode(-1);
+    root = sufficientSubset(root, 0);
+    System.out.println(root == null);
 
-    public static TreeNode sufficientSubset(TreeNode root, int limit) {
-        if (root == null) return null;
+    // [1, null, 10, -100, -100, null, null, null, null];
+    // limit = 10;
+    // expected return is null;
+    root = new TreeNode(1);
+    root.right = new TreeNode(10);
+    root.right.left = new TreeNode(-100);
+    root.right.right = new TreeNode(-100);
 
-        return maxPathSum(root, 0, limit) < limit ? null : root;
-    }
+    System.out.println(sufficientSubset(root, 10) == null);
 
-    private static long maxPathSum(TreeNode node, long sum, int limit) {
-        if (node.left == null && node.right == null) {
-            // leaf
-            return sum + node.val;
-        }
-        if (node.left == null && node.right != null) {
-            long rSum = maxPathSum(node.right, sum + node.val, limit);
-            if (rSum < limit) node.right = null;
-            return rSum;
-        }
-        if (node.left != null && node.right == null) {
-            long lSum = maxPathSum(node.left, sum + node.val, limit);
-            if (lSum < limit) node.left = null;
-            return lSum;
-        }
+    // [2, -3];
+    // limit = 1;
+    // expected return is null;
+    root = new TreeNode(2);
+    root.left = new TreeNode(-3);
+    root = sufficientSubset(root, 1);
+    System.out.println(root == null);
 
-        long lSum = maxPathSum(node.left, sum + node.val, limit);
-        long rSum = maxPathSum(node.right, sum + node.val, limit);
+    // [1,2,-3,-5,null,4,null]
+    // limit = -1
+    // expected return  [1,null,-3,4]
 
-        if (lSum < limit) {
-            node.left = null;
-        }
-        if (rSum < limit) {
-            node.right = null;
-        }
-        return Math.max(lSum, rSum);
-    }
-
-    // test -----
-    public static void main(String[] args) {
-        // [0, null, -1, null, null];
-        // limit = 0;
-        // expected return is null
-
-        TreeNode root = new TreeNode(0);
-        root.right = new TreeNode(-1);
-        root = sufficientSubset(root, 0);
-        System.out.println(root == null);
-
-        // [1, null, 10, -100, -100, null, null, null, null];
-        // limit = 10;
-        // expected return is null;
-        root = new TreeNode(1);
-        root.right = new TreeNode(10);
-        root.right.left = new TreeNode(-100);
-        root.right.right = new TreeNode(-100);
-
-        System.out.println(sufficientSubset(root, 10) == null);
-
-        // [2, -3];
-        // limit = 1;
-        // expected return is null;
-        root = new TreeNode(2);
-        root.left = new TreeNode(-3);
-        root = sufficientSubset(root, 1);
-        System.out.println(root == null);
-
-        // [1,2,-3,-5,null,4,null]
-        // limit = -1
-        // expected return  [1,null,-3,4]
-
-        root = new TreeNode(1);
-        root.left = new TreeNode(2);
-        root.left.left = new TreeNode(-5);
-        root.right = new TreeNode(-3);
-        root.right.left = new TreeNode(4);
-        root = sufficientSubset(root, -1);
-        System.out.println(
-                root.val == 1
-                        && root.left == null
-                        && root.right.val == -3
-                        && root.right.left.val == 4
-                        && root.right.right == null);
-    }
+    root = new TreeNode(1);
+    root.left = new TreeNode(2);
+    root.left.left = new TreeNode(-5);
+    root.right = new TreeNode(-3);
+    root.right.left = new TreeNode(4);
+    root = sufficientSubset(root, -1);
+    System.out.println(
+        root.val == 1
+            && root.left == null
+            && root.right.val == -3
+            && root.right.left.val == 4
+            && root.right.right == null);
+  }
 }

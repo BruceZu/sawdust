@@ -32,6 +32,12 @@ Constraints:
     s consists of lowercase English letters only.
  */
 public class Leetcode214ShortestPalindrome {
+  /*
+  Other Idea
+   1 Fast Fourier Transform,Fourier transform coefficients.
+      https://hackmd.io/@firejox/HkBxRYbrN?type=view
+   2 BoyerMoore can be used here?
+  */
 
   // hash ---------------------------------------------------------------------
   // Basic idea. O(N) time and space
