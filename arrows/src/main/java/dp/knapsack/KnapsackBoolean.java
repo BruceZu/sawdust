@@ -13,29 +13,27 @@
 // limitations under the License.
 //
 
-package dp.backpack;
+package dp.knapsack;
 
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
 
 /**
  * Apply basic idea in BackPackMax to calculate boolean logic E.g. If it is possible to use existing
  * coin ( type, counts) to exactly make number of price
  */
-public class BackPackBoolean {
+public class KnapsackBoolean {
   // boolean dp[]
   // initial: dp[0] = true;
   // dp[j] = false; 1<= j <= W;
 
-  private static void as01Pack(int coinValue, boolean dp[]) {
+  private static void as01knapsack(int coinValue, boolean dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;
     for (int price = W; price >= coinValue; price--) {
       dp[price] = dp[price] || dp[price - coinValue];
     }
   }
-
-  private static void asCompletePack(int coinValue, boolean dp[]) {
+  // unbounded knapsack problem (UKP)
+  private static void asCompleteKnapsack(int coinValue, boolean dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;
     for (int price = coinValue; price <= W; ++price) {
       dp[price] = dp[price] || dp[price - coinValue];
@@ -84,7 +82,8 @@ public class BackPackBoolean {
        value: current object type's value,
        count: current object type's quantity
   */
-  private static void asMultiplePack(int value, int count, boolean dp[]) {
+  // bounded knapsack problem (BKP)
+  private static void asMultipleKnapsack(int value, int count, boolean dp[]) {
     int W = dp.length - 1;
     // Slide window size is count +1. need keep element in advance of window to let imq refer.
     boolean[] q = new boolean[W + 1];
@@ -110,20 +109,20 @@ public class BackPackBoolean {
     }
   }
 
-  public static void pack(int value, int count, boolean dp[]) {
+  public static void knapsack(int value, int count, boolean dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;  W is the top limitation of the backpack
     if (count == 0) return; // it is initial value.
     if (count == 1) { // 01 backpack
-      as01Pack(value, dp);
+      as01knapsack(value, dp);
     } else if (count * value >= W) { // complete backpack (n*value >= W)
-      asCompletePack(value, dp);
+      asCompleteKnapsack(value, dp);
     } else { // assume only 3 options: 01, complete and multiple backpack
-      asMultiplePack(value, count, dp);
+      asMultipleKnapsack(value, count, dp);
     }
   }
 
   // POJ 1742 Coins.  Multiple backpack  O(N*P) time.
-  static int multipleBackpack(int[] coinsValue, int[] coinCounts, int P) {
+  static int multipleKnapsackInt(int[] coinsValue, int[] coinCounts, int P) {
     int N = coinsValue.length;
 
     int dp[] = new int[P + 1];
@@ -151,7 +150,7 @@ public class BackPackBoolean {
     return sum;
   }
   // ----- no comments version  --------------------------------------------------------------
-  private static void asMultiplePack2(int value, int count, boolean dp[]) {
+  private static void asMultipleKnapsack2(int value, int count, boolean dp[]) {
     int W = dp.length - 1;
     boolean[] q = new boolean[W + 1];
     int sum = 0;
@@ -170,7 +169,7 @@ public class BackPackBoolean {
     }
   }
   // POJ 1742 Coins.  Multiple backpack  O(N*P) time.
-  static int multipleBackpack2(int[] coinsValue, int[] coinCounts, int P) {
+  static int multipleKnapsack2(int[] coinsValue, int[] coinCounts, int P) {
     int N = coinsValue.length;
     int dp[] = new int[P + 1];
     Arrays.fill(dp, -1);
@@ -205,7 +204,7 @@ public class BackPackBoolean {
     dp[0] = true;
     for (int[] item : items) {
       int cost = item[0], value = item[1], counts = item[2];
-      asMultiplePack(value, counts, dp);
+      asMultipleKnapsack(value, counts, dp);
     }
     int sum = 0;
     for (int i = 1; i <= W; i++) {
@@ -217,7 +216,7 @@ public class BackPackBoolean {
     dp[0] = true;
     for (int[] item : items) {
       int value = item[1], counts = item[2];
-      pack(value, counts, dp);
+      knapsack(value, counts, dp);
     }
     sum = 0;
     for (int i = 1; i <= W; i++) {
@@ -236,7 +235,7 @@ public class BackPackBoolean {
     dp[0] = true;
     for (int[] item : items) {
       int value = item[1], counts = item[2];
-      asMultiplePack(value, counts, dp);
+      asMultipleKnapsack(value, counts, dp);
     }
     sum = 0;
     for (int i = 1; i <= W; i++) {
@@ -249,7 +248,7 @@ public class BackPackBoolean {
     dp[0] = true;
     for (int[] item : items) {
       int value = item[1], counts = item[2];
-      pack(value, counts, dp);
+      knapsack(value, counts, dp);
     }
     sum = 0;
     for (int i = 1; i <= W; i++) {
@@ -258,7 +257,7 @@ public class BackPackBoolean {
     System.out.println(sum == 8);
 
     // 2  test case of POJ 1742 Coins with multipleBackpack()
-    System.out.println(multipleBackpack(new int[] {1, 2}, new int[] {2, 1}, 5) == 4);
-    System.out.println(multipleBackpack(new int[] {1, 2, 4}, new int[] {2, 1, 1}, 10) == 8);
+    System.out.println(multipleKnapsackInt(new int[] {1, 2}, new int[] {2, 1}, 5) == 4);
+    System.out.println(multipleKnapsackInt(new int[] {1, 2, 4}, new int[] {2, 1, 1}, 10) == 8);
   }
 }

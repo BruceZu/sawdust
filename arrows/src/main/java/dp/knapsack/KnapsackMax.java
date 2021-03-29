@@ -13,11 +13,11 @@
 // limitations under the License.
 //
 
-package dp.backpack;
+package dp.knapsack;
 
 import java.util.*;
 
-public class BackPackMax {
+public class KnapsackMax {
   // initial: dp[0] =0;
   // dp[j] = Integer.MAX_value; 1<= j <= W;
   // for scenario where the best solution's cost == W
@@ -25,14 +25,14 @@ public class BackPackMax {
   // initial: dp[j]= 0; 0<= j <= W;
   // for scenario where the best solution's cost <= W
 
-  private static void as01Pack(int cost, int value, int dp[]) {
+  private static void as01Knapsack(int cost, int value, int dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;
     for (int i = W; i >= cost; i--) {
       dp[i] = Math.max(dp[i], dp[i - cost] + value);
     }
   }
 
-  private static void asCompletePack(int cost, int value, int dp[]) {
+  private static void asCompleteKnapsack(int cost, int value, int dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;
     for (int i = cost; i <= W; ++i) {
       dp[i] = Math.max(dp[i], dp[i - cost] + value);
@@ -86,7 +86,7 @@ public class BackPackMax {
        count: current object type's quantity
   */
 
-  private static void asMultiplePack(int cost, int value, int count, int dp[]) {
+  private static void asMultipleKnapsack(int cost, int value, int count, int dp[]) {
     int W = dp.length - 1;
     // Slide window size is count +1. need keep element in advance of window to let imq refer.
     int[] q = new int[W + 1];
@@ -113,20 +113,20 @@ public class BackPackMax {
     }
   }
 
-  public static void pack(int cost, int value, int count, int dp[]) {
+  public static void knapsack(int cost, int value, int count, int dp[]) {
     int W = dp.length - 1; // dp length = 0 .. W;  W is the top limitation of the backpack
     if (count == 0 || cost == 0) return; // it is initial value.
     if (count == 1) { // 01 backpack
-      as01Pack(cost, value, dp);
+      as01Knapsack(cost, value, dp);
     } else if (count * cost >= W) { // complete backpack (n*cost >= W)
-      asCompletePack(cost, value, dp);
+      asCompleteKnapsack(cost, value, dp);
     } else { // assume only 3 options: 01, complete and multiple backpack
-      asMultiplePack(cost, value, count, dp);
+      asMultipleKnapsack(cost, value, count, dp);
     }
   }
   // ----- no comments version  --------------------------------------------------------------
   // O(W) time
-  private static void asMultiplePack2(int cost, int value, int count, int dp[]) {
+  private static void asMultipleKnapsack2(int cost, int value, int count, int dp[]) {
     int W = dp.length - 1;
     int[] q = new int[W + 1];
     Deque<Integer> imq;
@@ -161,14 +161,14 @@ public class BackPackMax {
     int[] dp = new int[W + 1]; // initial with 0 means
     for (int[] item : items) {
       int cost = item[0], value = item[1], counts = item[2];
-      asMultiplePack(cost, value, counts, dp);
+      asMultipleKnapsack(cost, value, counts, dp);
       System.out.println(Arrays.toString(dp));
     }
     // Test my note book case with with pack()
     dp = new int[W + 1]; // initial with 0 means
     for (int[] item : items) {
       int cost = item[0], value = item[1], counts = item[2];
-      pack(cost, value, counts, dp);
+      knapsack(cost, value, counts, dp);
       System.out.println(Arrays.toString(dp));
     }
     /*
