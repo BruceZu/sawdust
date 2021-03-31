@@ -116,21 +116,21 @@ public class QuickSortOnePivot3way {
 
     private static <T extends Comparable<T>> int[] locatePivotIndex3Way(T[] arr, int l, int r) {
         T pivot = arr[getPivotIndexUsingMedianOf3(arr, l, r, (l + r) / 2)];
-        int i = l, nextLestIndex = l, nextGreatIndex = r;
+        int i = l, s = l, g = r; // next smaller index s and next greater index g. compared with pivot value
         // partition in 3 ways:  <pivot | pivots | > pivot
-        while (i <= nextGreatIndex) {
+        while (i <= g) {
             if (lessThan(arr[i], pivot)) {
-                swap(arr, i, nextLestIndex);
+                swap(arr, i, s);
                 i++;
-                nextLestIndex++;
+                s++;
             } else if (same(pivot, arr[i])) {
                 i++;
             } else {
-                swap(arr, i, nextGreatIndex);
-                nextGreatIndex--;
+                swap(arr, i, g);
+                g--;
             }
         }
-        return new int[]{nextLestIndex, nextGreatIndex};
+        return new int[]{s, g};
     }
 
     private static <T extends Comparable<T>> void call(T[] arr, int l, int r) {
