@@ -32,225 +32,91 @@ import java.util.*;
  * (-1, -1, 2)
  * <a href="https://leetcode.com/problems/3sum/">LeetCode</a>
  */
-
 public class Leetcode15_3Sum {
-    /**
-     * duplicated number:   unique triplets, but nums[j] can be same as nums[i]
-     * print out in order of ascending
-     * triplets are unique
-     * --
-     * 3sum -> 2sum:
-     * sort + 2 pointer, O(n*n)
-     * sort + set or map, O(n*n).
-     *     can not work here, as there maybe duplicated element
-     *     need care the duplicated, keep times, and care the order, the index.
-     * sort + binary search, O(nlogn) ~O(n*n)
-     */
+  /*
+    duplicated number:
+      unique triplets, but nums[j] can be same as nums[i] print out in order of
+      ascending triplets are unique
+   3sum -> 2sum:
+      sort + 2 pointer O(N^2)
+      sort + map   O(N^2). can not work here,
+                           as there maybe duplicated element need care the duplicated,
+                           keep times, and care the order, the index.
+      sort + binary search in 2sum, O(NlogN) ~O(N^2)
+  */
+  public static void main(String[] args) {
+    threeSum(new int[] {-1, 0, 1, 2, -1, -4}); // 2 results
+    threeSum(new int[] {3, 0, -2, -1, 1, 2}); // 3 results
+  }
 
-    public static void main(String[] args) {
-        threeSum(new int[]{-1, 0, 1, 2, -1, -4}); // 2 results
-        threeSum(new int[]{3, 0, -2, -1, 1, 2}); // 3 results
-    }
-
-    // o(n*n)
-    public static List<List<Integer>> threeSum(int[] nums) {
-        Arrays.sort(nums);
-        List<List<Integer>> result = new ArrayList<>();
-        for (int i = 0; i < nums.length - 2; i++) {
-            if (i == 0 || (i > 0 && nums[i] != nums[i - 1])) {
-                int j = i + 1, k = nums.length - 1, sum = 0 - nums[i];
-                while (j < k) {
-                    if (nums[j] + nums[k] == sum) {
-                        result.add(Arrays.asList(nums[i], nums[j], nums[k]));
-                        while (j < k && nums[j] == nums[j + 1]) {
-                            j++;
-                        }
-                        while (j < k && nums[k] == nums[k - 1]) {
-                            k--;
-                        }
-                        j++;
-                        k--;
-                    } else if (nums[j] + nums[k] < sum) {
-                        j++;
-                    } else {
-                        k--;
-                    }
-                }
-            }
+  // o(N^2) time
+  public static List<List<Integer>> threeSum2(int[] nums) {
+    Arrays.sort(nums);
+    List<List<Integer>> result = new ArrayList<>();
+    for (int i = 0; i < nums.length - 2; i++) {
+      if (i == 0 || (i > 0 && nums[i] != nums[i - 1])) {
+        int j = i + 1, k = nums.length - 1, sum = 0 - nums[i];
+        while (j < k) {
+          if (nums[j] + nums[k] == sum) {
+            result.add(Arrays.asList(nums[i], nums[j], nums[k]));
+            while (j < k && nums[j] == nums[j + 1]) j++;
+            while (j < k && nums[k] == nums[k - 1]) k--;
+            j++;
+            k--;
+          } else if (nums[j] + nums[k] < sum) {
+            j++;
+          } else {
+            k--;
+          }
         }
-        return result;
+      }
     }
+    return result;
+  }
 
-    // o(n*n)
-    public static List<List<Integer>> threeSum4(int[] nums) {
-        //input checking
-        Arrays.sort(nums);
-        List<List<Integer>> result = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
-            if (i != 0 && nums[i - 1] == nums[i]) {
-                continue;
-            }
-            int j = i + 1, k = nums.length - 1;
-            while (j < k) {
-                if (nums[i] + nums[j] + nums[k] == 0) {
-                    result.add(Arrays.asList(nums[i], nums[j], nums[k]));
-                    while (j < k && nums[j] == nums[j + 1]) { // or move k
-                        j++;
-                    }
-                    j++;
-                } else if (nums[i] + nums[j] + nums[k] > 0) {
-                    k--;
-                } else {
-                    j++;
-                }
-            }
+  // ----------------------  binarySearch --------------------------------------
+  public static List<List<Integer>> threeSum(int[] nums) {
+    // TODO: input checking
+    int N = nums.length;
+    List<List<Integer>> result = new ArrayList<>();
+    Arrays.sort(nums); // O(NlogN)
+    // in better case O(NlogN)
+    for (int i = 0; i <= N - 3; i++) {
+      if (i != 0 && nums[i - 1] == nums[i]) continue;
+      int j = i + 1;
+      int k = N; // just for initial
+
+      int r, l;
+      while (j < k) {
+        l = j + 1;
+        r = k - 1;
+        if (l > r) break;
+
+        int idx = Arrays.binarySearch(nums, l, r + 1, 0 - nums[i] - nums[j]);
+        if (idx >= 0) {
+          k = idx;
+          result.add(Arrays.asList(nums[i], nums[j], nums[k]));
+          k--;
+          while (j < k && nums[k] == nums[k + 1]) k--;
+        } else {
+          k = -idx - 1 - 1; // Not found, greaterIndex is -idx - 1;
         }
-        return result;
+
+        // ----------------------------------------------------
+        l = j + 1;
+        r = k - 1;
+        if (l > r) break;
+        idx = Arrays.binarySearch(nums, l, r + 1, 0 - nums[i] - nums[k]);
+        if (idx >= 0) {
+          j = idx;
+          result.add(Arrays.asList(nums[i], nums[j], nums[k]));
+          j++;
+          while (j < k && nums[j] == nums[j - 1]) j++;
+        } else {
+          j = -idx - 1;
+        }
+      }
     }
-
-    // o(n*n)
-    public static List<List<Integer>> threeSum5(int[] nums) {
-        //input checking
-        Arrays.sort(nums);
-        List<List<Integer>> result = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
-            while (i != 0 && i < nums.length && nums[i - 1] == nums[i]) {
-                i++;
-            }
-            int j = i + 1, k = nums.length - 1;
-            while (j < k) {
-                // nums[j] can be same as nums[i]
-                if (nums[i] + nums[j] + nums[k] == 0) {
-                    result.add(Arrays.asList(nums[i], nums[j], nums[k]));
-
-                    j++;
-                    while (j < k && nums[j] == nums[j - 1]) {
-                        j++;
-                    }
-                    k--;
-                    while (j < k && nums[k] == nums[k + 1]) {
-                        k--;
-                    }
-                } else if (nums[i] + nums[j] + nums[k] > 0) {
-                    k--;
-                } else {
-                    j++;
-                }
-            }
-        }
-        return result;
-    }
-
-    public static List<List<Integer>> threeSum6(int[] nums) {
-        //input checking
-        Arrays.sort(nums);
-        List<List<Integer>> result = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
-            while (i != 0 && i < nums.length && nums[i - 1] == nums[i]) {
-                i++;
-            }
-            int j = i + 1, k = nums.length - 1;
-            while (j < k) {
-                // nums[j] can be same as nums[i], do not compare j and i.
-                if (nums[i] + nums[j] + nums[k] == 0) {
-                    result.add(Arrays.asList(nums[i], nums[j], nums[k]));
-                    // -1, -3, -3, 4, 4
-                    j++;
-                    while (j < k && nums[j] == nums[j - 1]) {
-                        j++;
-                    }
-                    k--;
-                    while (j < k && nums[k] == nums[k + 1]) {
-                        k--;
-                    }
-                } else if (nums[i] + nums[j] + nums[k] > 0) {
-                    k--;
-                    while (j < k && nums[k] == nums[k + 1]) {
-                        k--;
-                    }
-                } else {
-                    j++;
-                    while (j < k && nums[j] == nums[j - 1]) {
-                        j++;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    // Like public version, but without range checks.
-    private static int binarySearch(int[] a, int low, int high,
-                                    int key) {
-        while (low < high) {
-            int mid = (low + high) >>> 1;
-            int midVal = a[mid];
-
-            if (midVal < key)
-                low = mid + 1;
-            else if (midVal > key)
-                high = mid - 1;
-            else
-                return mid; // key found
-        }
-        return low;
-    }
-
-    public static List<List<Integer>> threeSum3(int[] nums) {
-        //input checking
-        List<List<Integer>> result = new ArrayList<>();
-        if (nums == null || nums.length < 3) {
-            return result;
-        }
-        Arrays.sort(nums);
-        for (int i = 0; i <= nums.length - 3; i++) {
-            if (i != 0 && nums[i - 1] == nums[i]) {
-                continue;
-            }
-            // binary search 2 sum start
-            int cl = i + 1; // left side candidate index
-            int candidateLv = nums[cl];
-
-            int cr = nums.length; // just for initial
-            int candidateRv = 0 - nums[i] - candidateLv;
-
-            int l; // index search from
-            int r;
-            while (cl < cr) {
-                // find the index of the right candidate with remaining value
-                l = cl + 1; // not use the same element twice
-                r = cr - 1;
-                if (l > r) {
-                    break;
-                }
-                cr = binarySearch(nums, l, r, candidateRv);
-                if (nums[i] + nums[cl] + nums[cr] == 0) {
-                    result.add(Arrays.asList(nums[i], nums[cl], nums[cr]));
-                    cr--;
-                    while (cl < cr && nums[cr] == nums[cr + 1]) {
-                        cr--;
-                    }
-                }
-                candidateLv = 0 - nums[i] - nums[cr];
-
-                // find the index of the left candidate with remaining value
-                l = cl + 1;
-                r = cr - 1; // not use the same element twice
-                if (l > r) {
-                    break;
-                }
-                cl = binarySearch(nums, l, r, candidateLv);
-                if (nums[i] + nums[cl] + nums[cr] == 0) {
-                    result.add(Arrays.asList(nums[i], nums[cl], nums[cr]));
-                    cl++;
-                    while (cl < cr && nums[cl] == nums[cl - 1]) {
-                        cl++;
-                    }
-                }
-                candidateRv = 0 - nums[i] - nums[cl];
-                // binary serach 2 sum end
-            }
-        }
-        return result;
-    }
+    return result;
+  }
 }
