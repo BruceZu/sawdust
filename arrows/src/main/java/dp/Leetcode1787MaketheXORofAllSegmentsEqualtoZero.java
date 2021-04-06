@@ -16,109 +16,125 @@
 package dp;
 
 import java.util.Arrays;
-/*
-  1 <= k <= nums.length <= 2000
-   0 <=nums[i] < 2^10,
-
-Note:
-1> It is possible the best solution changes [0, k-1] position(s)'s number in the
-first k numbers to minimize changes for all other positions.
-2> For the same reason, any position's number can be changed to be [0, 1024).
-*/
 
 public class Leetcode1787MaketheXORofAllSegmentsEqualtoZero {
-  // Basic idea: O(K*R^2) R is the range of number[i], it is 1024 here. Time Limit Exceeded
+  /*
+       1 <= k <= nums.length <= 2000
+       0 <=nums[i] < 2^10,
+
+   2 hints:
+     - Let's note that for the XOR of all segments with size K to be equal to zeros,
+     nums[i] has to be equal to nums[i+k]
+     - Basically, we need to make the first K elements have XOR = 0 and then modify them.
+
+     The expected result is a rolling window with length k. decided by ^.
+     a[k] = a[2k] = a[3k] = ...
+
+
+   Note:
+        change number[i], i is in [0, k-1]  to be any number in [0, 1024).
+        to minimize changes for all other positions.
+
+   O(K*R^2) R is the range of number[i], it is 1024 here. Time Limit Exceeded
+  */
   public static int minChanges1(int[] nums, int k) {
     int N = nums.length;
-    int[] nm = new int[k]; // nm[i] The number of group number 0~k-1
-    int[][] fre =
-        new int[k][1024]; // int[i][j]  frequency of number j in group i. '0 <=nums[i] < 2^10=1024'
+    int[] cnt = new int[k]; // cnt[i] The count of number at the sub-array/group index 0~k-1
+    /*
+    int[i][j]  frequency of number j at the sub-array/group index 0~k-1.
+     '0 <=nums[i] < 2^10=1024'
+    to change a[i] to any value, we must change all the elements whose index%k==i to the new
+    value. If change a[i] to X, the
+    changes required = (count of elements whose index%k==i)-freq[X] ;
+    */
+    int[][] fre = new int[k][1024];
     for (int i = 0; i < N; i++) {
       fre[i % k][nums[i]]++;
-      nm[i % k]++;
+      cnt[i % k]++;
     }
-    // dp[i][j] is the minimum changes of pre i groups to make
-    // the result of XOR of number[0]~number[i] is j
-    // '0 <=nums[i] < 2^10=1024' this means xor value range will be in [0, 1024)
-    // transform equation is
-    //        dp[current group][xor] =
-    //        Math.min(dp[current group][xor],
-    //                 dp[current group-1][xor^alternative number] +
-    //                   nm[current group] - fre[current group][xor^alternative number]);
+    /*
+      dp[i][xor] is the minimum changes to make XOR number[0]~number[i] is xor
+        i is in [0,k-1].
+        xor is in [0,1023].
+
+      '0 <=nums[i] < 2^10=1024' this means xor value range will be in [0, 1024)
+      for current number[i] let the alternative number is al which is in [0, 1024) or [0, 1023]
+      Then the transform equation is
+         dp[i][xor] = Math.min(dp[i][xor], dp[i-1][xor^al] +  cnt[i] - fre[i][al]);
+
+      So result will be dp[k-1][0]
+      to make approach easy, add a virtual number in advance of number[0]
+      to provide a initial dp[0][xor]
+      So now i is in [1,k], result will be dp[k][0]
+      Then the transform equation becomes:
+         dp[i][xor] = Math.min(dp[i][xor], dp[i-1][xor^al] +  cnt[i-1] - fre[i-1][al]);
+    */
     int[][] dp = new int[k + 1][1024];
     for (int i = 0; i <= k; i++) Arrays.fill(dp[i], N);
     // Not use Integer.MAX_VALUE: see transform equation
     /*
-       For the group 0 dp[0][j] is N, except dp[0][0] is 0.
-       Because dp[0][j] is used only for calculate group 1
-       where for any alternative of nums[0], [0,1024), it has not other previous numbers to do XOR operation with it.
-       So for the xor value j of dp[1][j], the nums[0] only have to select j,
-          dp[1][j] = nm[0] - fre[0][j];
-       Here in nm[g] and fre[g][] the group g is 0 index based
-       For making it uniform with the translation equation
-         dp[g][xor] = Math.min(dp[g][xor], dp[g - 1][px] + nm[g - 1] - fre[g - 1][al]);
-       Let dp[0][j^j=0] = 0, then
-         dp[1][j] = dp[0][j^j=0] + nm[0] - fre[0][j]);
-       Let dp[0][other number than 0] be N to achieve an effect to ignore these alternative numbers
+       dp[0][j] is used only for calculating dp[1][xor]
+       dp[0][j] is N, except dp[0][0] is 0.
+
+       The alternative for nums[0] is in [0,1024)
+       for a give xor, to calculate dp[1][xor], the nums[0] only have to select xor,
+         dp[1][xor] = dp[0][xor^xor==0] + cnt[0] - fre[0][xor]);
+         dp[1][xor] = cnt[0] - fre[0][xor];
+       if the alternative of  nums[0] is not xor itself, then x^al != 0, dp[0][ x^al!=0] is N
+       achieve an effect to ignore these alternative numbers.
+       The calculated dp[1][xor] is expected.
     */
     dp[0][0] = 0;
-    for (int g = 1; g <= k; g++) {
-      for (int x = 0; x < 1024; x++)
-        for (int al = 0; al < 1024; al++) // alternative of num[g]
-        dp[g][x] = Math.min(dp[g][x], dp[g - 1][x ^ al] + nm[g - 1] - fre[g - 1][al]);
+    for (int i = 1; i <= k; i++) {
+      for (int xor = 0; xor < 1024; xor++) // xor
+      for (int al = 0; al < 1024; al++) // alternative number for current number[i]
+        dp[i][xor] = Math.min(dp[i][xor], dp[i - 1][xor ^ al] + cnt[i - 1] - fre[i - 1][al]);
     }
     return dp[k][0];
   }
   // Improvement version ->O(N*R),R is the range of number[i], it is 1024 here.
   public static int minChanges2(int[] nums, int k) {
     int N = nums.length;
-    int[] nm = new int[k];
+    int[] cnt = new int[k];
     int[][] fre = new int[k][1024];
     for (int i = 0; i < N; i++) {
       fre[i % k][nums[i]]++;
-      nm[i % k]++;
+      cnt[i % k]++;
     }
 
     int[][] dp = new int[k + 1][1024];
     for (int i = 0; i <= k; i++) Arrays.fill(dp[i], N);
-
     dp[0][0] = 0;
     /*
-    '0 <=nums[i] < 2^10 = 1024' means
-    For xor value x in dp[g][x], let px = x ^ number.
-    As x in [0, 1024), number is in [0, 1024).
-    So px is in [0, 1024) and for a given x the relationship
-    between number and px is bijective.
-    So when fre[g - 1][al] is 0, the transform equation
-        dp[g][x] = Math.min(dp[g][x], dp[g - 1][px] + nm[g - 1] - fre[g - 1][al]);
+    '0 <=nums[i] < 2^10=1024' this means xor value range will be in [0, 1024)
+    number[i], xor and xor ^ number[i] are all in [0, 1024).
+    number[i] and xor ^ number[i] is bijective.
+
+    So when alternative al of number[i] is not same as number[i+ck], c=0,1,2,3... and i+ck < array length.
+    the fre[i - 1][al] is 0, the transform equation
+        dp[i][xor] = Math.min(dp[i][xor],           dp[i-1][xor^al] +  cnt[i-1] - fre[i-1][al]);
     becomes:
-       dp[g][x] = Math.min(dp[g][x], dp[g - 1][px]) + nm[g - 1];
-    For any alternative number of num[g-1], here g is in[1,k] and i in num[i] is in [0,k-1],
-    if the number is not in group g-1 then the fre[g - 1][al] is 0.
-    So the
-       dp[g][x] = Math.min(dp[g][x], dp[g - 1][px]) + nm[g - 1]
-    can be applied to the alternative number not in group g-1
-    As  nm[g - 1] - fre[g - 1][al] < nm[g - 1]
-    This means the
-      dp[g][x] = Math.min(dp[g][x], dp[g - 1][px]) + nm[g - 1];
-    Can also apply to the number in group g-1 to form a inner loop 1, and then
-    handle the number in group g-1 with original transform equation in another
-    inner loop 2. And the overlap and running order of these 2 loops does not
-    affect result.
-    The inner loop 1 can even be took as dp[g][x] initial value.
+        dp[i][xor] = Math.min(dp[i][xor],  Math.min(dp[i-1][xor^al]) +  cnt[i-1])
+    can be also applied to all alternative number
+    As  cnt[i - 1] - fre[i - 1][al] < cnt[i - 1]
+    thus form a inner loop 1, and then
+    handle the alternative of number[i] same as number[i+ck], c=0,1,2,3... and i+ck < array length.
+    inner loop 2.
+    And the overlap and running order of these 2 loops does not  affect result.
+    The inner loop 1 can even be took as dp[i][x] initial value.
     */
-    int preDPmin = 0;
-    for (int g = 1; g <= k; g++) {
-      for (int x = 0; x < 1024; x++) { // Inner loop 1
-        dp[g][x] = Math.min(dp[g][x], preDPmin + nm[g - 1]);
+    int preDPmin = 0; // it is dp[0][0]
+    for (int i = 1; i <= k; i++) {
+      for (int xor = 0; xor < 1024; xor++) { // Inner loop 1
+        dp[i][xor] = Math.min(dp[i][xor], preDPmin + cnt[i - 1]);
       }
       for (int x = 0; x < 1024; x++) { // Inner loop 2
-        for (int i = g - 1; i < N; i += k) // Note i=g-1, nums is 0 index based.
-        dp[g][x] = Math.min(dp[g][x], dp[g - 1][x ^ nums[i]] + nm[g - 1] - fre[g - 1][nums[i]]);
+        for (int al = i - 1; al < N; al += k) // Note al=i-1, nums is 0 index based.
+        dp[i][x] = Math.min(dp[i][x], dp[i - 1][x ^ nums[al]] + cnt[i - 1] - fre[i - 1][nums[al]]);
       }
       int curMin = N;
       for (int x = 0; x < 1024; x++) {
-        curMin = Math.min(curMin, dp[g][x]);
+        curMin = Math.min(curMin, dp[i][x]);
       }
       preDPmin = curMin;
     }
@@ -129,23 +145,23 @@ public class Leetcode1787MaketheXORofAllSegmentsEqualtoZero {
   // 2 dimension dp-> 1 dimension thus all variable is 0 index based now
   public static int minChanges3(int[] nums, int k) {
     int N = nums.length;
-    int[] nm = new int[k];
+    int[] cnt = new int[k];
     int[][] fre = new int[k][1024];
     for (int i = 0; i < N; i++) {
       fre[i % k][nums[i]]++;
-      nm[i % k]++;
+      cnt[i % k]++;
     }
     int[] dp = new int[1024];
     Arrays.fill(dp, N);
     dp[0] = 0;
     int min = 0;
-    for (int g = 0; g < k; g++) {
+    for (int i = 0; i < k; i++) {
       int[] curDP = new int[1024];
-      Arrays.fill(curDP, min + nm[g]);
+      Arrays.fill(curDP, min + cnt[i]);
       int curMin = N;
       for (int x = 0; x < 1024; x++) {
-        for (int i = g; i < N; i += k)
-          curDP[x] = Math.min(curDP[x], dp[x ^ nums[i]] + nm[g] - fre[g][nums[i]]);
+        for (int al = i; al < N; al += k)
+          curDP[x] = Math.min(curDP[x], dp[x ^ nums[al]] + cnt[i] - fre[i][nums[al]]);
         curMin = Math.min(curMin, curDP[x]);
       }
       min = curMin;
@@ -155,7 +171,7 @@ public class Leetcode1787MaketheXORofAllSegmentsEqualtoZero {
   }
 
   // Last version. O(N*R),R is the range of number[i], it is 1024 here.
-  // min -> max logic. thus save the nm[] variable
+  // min -> max logic. thus save the cnt[] variable
   public static int minChanges(int[] nums, int k) {
     int N = nums.length;
     int[][] fre = new int[k][1024];
@@ -166,20 +182,21 @@ public class Leetcode1787MaketheXORofAllSegmentsEqualtoZero {
     Arrays.fill(dp, -N);
     dp[0] = 0;
     int max = 0;
-    for (int g = 0; g < k; g++) {
+    for (int i = 0; i < k; i++) {
       int[] DP = new int[1024];
       Arrays.fill(DP, max);
       int MAX = 0;
-      for (int x = 0; x < 1024; x++) {
-        for (int i = g; i < N; i += k) DP[x] = Math.max(DP[x], dp[x ^ nums[i]] + fre[g][nums[i]]);
-        MAX = Math.max(MAX, DP[x]);
+      for (int xor = 0; xor < 1024; xor++) {
+        for (int al = i; al < N; al += k)
+          DP[xor] = Math.max(DP[xor], dp[xor ^ nums[al]] + fre[i][nums[al]]);
+        MAX = Math.max(MAX, DP[xor]);
       }
       max = MAX;
       dp = DP;
     }
     return N - dp[0];
   }
-
+  // --------------------------------------------------------------------------
   public static void main(String[] args) {
     System.out.println(minChanges(new int[] {3, 4, 5, 2, 1, 7, 3, 4, 7}, 3) == 3);
     System.out.println(minChanges(new int[] {1, 2, 4, 1, 2, 5, 1, 2, 6}, 3) == 3);
