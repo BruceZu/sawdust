@@ -26,7 +26,7 @@ import java.util.List;
 // C328
 public class ReverseSinglyLinkedListTest {
 
-    @Test(timeout = 10L, expected = Test.None.class)
+    @Test(timeout = 100L, expected = Test.None.class)
     public void test() {
         List l = new LinkedList() {{
             add("a");

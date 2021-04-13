@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class BinarySearchTreeTest {
-    @Test(timeout =20L, expected = Test.None.class)
+    @Test(timeout =200L, expected = Test.None.class)
     public void test() {
         BinarySearchTree bst = new BinarySearchTreeImplement<>();
         bst.add('b');

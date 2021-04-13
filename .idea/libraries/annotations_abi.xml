@@ -3,12 +3,12 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/hamcrest-core#class-abi/hamcrest-core-abi.jar!/" />
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/guava#class-abi/guava-abi.jar!/" />
-      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/annotations#class-abi/annotations-abi.jar!/" />
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/junit#class-abi/junit-abi.jar!/" />
-      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/servlet-api-3_1#class-abi/servlet-api-3_1-abi.jar!/" />
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/slf4j-api#class-abi/slf4j-api-abi.jar!/" />
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/slf4j-simple#class-abi/slf4j-simple-abi.jar!/" />
       <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/truth_lib#class-abi/truth_lib-abi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/__annotations__/annotations-annotations-12.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/__servlet-api-3_1__/servlet-api-3_1-tomcat-servlet-api-8.0.24.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

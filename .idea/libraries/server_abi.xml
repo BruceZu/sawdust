@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="server-abi">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/jetty/server#class-abi/server-abi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/buck-out/gen/lib/jetty/__server__/server-jetty-server-9.2.14.v20151106.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

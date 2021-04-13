@@ -511,7 +511,7 @@ public class BitMaskTest {
         Assert.assertEquals(28, 32 - Integer.bitCount(x));
     }
 
-    @Test(timeout = 3l, expected = org.junit.Test.None.class)
+    @Test(timeout = 30l, expected = org.junit.Test.None.class)
     public void testLeadingZeroCount_2() {
         int i = -0b1000;
         int n = 1;
