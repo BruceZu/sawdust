@@ -16,12 +16,25 @@
 package bitmanipulation;
 
 public class Leetcode1016BinaryStringWithSubstringsRepresenting1ToN {
-
-  public boolean queryString(String S, int N) {
-    if (N > 1024 * 2) return false;
+  public static boolean queryString(String S, int N) {
     //     1 <= S.length <= 1000
     //            1 <= N <= 10^9
+    //
+    // T is checking times， it is checking number i in [N to N/2)
+    //   generally need not check N/2 if N/2 > 0, special case is N=1, N/2==0
+    // JDK String.contains() is O(M*L) time,
+    //   M is S length.
+    //   L is binary string length of i is 1 + logN or logN
+    // So the runtime is T*M*L
+    // It is O(N*M*logN) time
+    if (S.length() < (Math.log(N) / Math.log(2)) * (N - N / 2)) {
+      return false;
+    }
     for (int i = N; i > N / 2; --i) if (!S.contains(Integer.toBinaryString(i))) return false;
     return true;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(queryString("1", 1));
   }
 }
