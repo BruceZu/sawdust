@@ -30,23 +30,35 @@ public class Leetcode1081SmallestSubsequenceofDistinctCharacters {
     /*
        1 <= s.length <= 1000
        s consists of lowercase English letters.
+       TODO: corner cases validation
     */
     int N = s.length();
     int[] left = new int[26]; // not used in sequence
     for (int i = 0; i < N; i++) {
       left[s.charAt(i) - 'a']++;
     }
-    // left counts can only show if we can kick if off from stack
-    // but it not show if the char has ever been used in result.
-    // so need another variable 'used'
+    /*
+    The stack values represent the lexicographically smallest subsequence
+    of string `s` that contains all the distinct characters of s exactly once.
+
+    The left available number of a char means only that whether the char can
+    be kick off from the stack when another char with precedence lexicographically
+    order appear and try to replace it. The left available number does not
+    mean whether the char has ever been used in the sequence stack.
+    So another variable 'used' is used for this reason.
+
+    If the current char has been used in sequence stack, then it will not be used
+    again in the sequence stack. Reminder here is because it is skipped here and
+    its left available number should minus 1
+    */
     boolean[] used = new boolean[26];
     Stack<Character> st = new Stack();
-    st.push('1');
+    st.push('1'); // Use dummy head char "1" in sequence stack to make algorithm easy.
     for (int i = 0; i < N; i++) {
       char c = s.charAt(i);
-      int idx = c - 'a';
+      int idx = c - 'a'; // index in `used`
       if (used[idx]) {
-        left[idx]--; // even it is not used in sequence but the available left number should minus 1
+        left[idx]--;
         continue;
       }
       while (st.peek() >= c && left[st.peek() - 'a'] != 0) {
@@ -59,7 +71,7 @@ public class Leetcode1081SmallestSubsequenceofDistinctCharacters {
     }
     //  st.toString() contains '[,',',']'
     StringBuilder r = new StringBuilder();
-    while (st.size() > 1) {
+    while (st.size() > 1) { // not include the dummy head.
       r.append(st.pop());
     }
     return r.reverse().toString();

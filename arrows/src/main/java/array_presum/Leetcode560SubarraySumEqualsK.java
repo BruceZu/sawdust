@@ -33,29 +33,43 @@ import java.util.Map;
  *   and the range of the integer k is [-1e7, 1e7].
  */
 public class Leetcode560SubarraySumEqualsK {
-    // O(n)
-    public int subarraySum(int[] nums, int k) {
-        // map Sum To its Counts
-        Map<Integer, Integer> sn = new HashMap();
-        int s = 0, r = 0;
-        sn.put(s, 1); // empty array
-        for (int i : nums) {
-            s += i;
-            r += sn.getOrDefault(s - k, 0);
-            sn.put(s, sn.getOrDefault(s, 0) + 1);
-        }
-        return r;
-    }
 
-    public int subarraySum2(int[] nums, int k) {
-        // map Sum To its Counts
-        Map<Integer, Integer> sn = new HashMap();
-        int s = 0, r = 0;
-        for (int i : nums) {
-            sn.put(s, sn.getOrDefault(s, 0) + 1);
-            s += i;
-            r += sn.getOrDefault(s - k, 0);
-        }
-        return r;
+  public int subarraySum(int[] nums, int k) {
+    /*
+      1 <= nums.length <= 2 * 104
+      -1000 <= nums[i] <= 1000
+      -107 <= k <= 107
+       TODO: corner cases validation
+    */
+
+    /*
+    Idea
+     With a pre calculated pre sum array to get a algorithm O(N^2) time and O(N) space
+     further with a temp cumulative sum to get a algorithm O(N^2) time and O(1) space:
+       public int subarraySum(int[] nums, int k) {
+         int count = 0;
+         for (int start = 0; start < nums.length; start++) {
+            int sum=0;
+            for (int end = start; end < nums.length; end++) {
+                sum+=nums[end];
+                if (sum == k)
+                    count++;
+            }
+         }
+         return count;
+       }
+
+     With pre sum and its account kep in a map to get a algorithm O(N) time and O(N) space
+     */
+    Map<Integer, Integer> map = new HashMap(); // map Sum To its Counts
+    int preSum = 0, r = 0; // sum is presum of nums[0],..., nums[i]
+    for (int i : nums) {
+      // Once it is hit later by later_sum - k = this_sum then we find it/them
+      // how many is it? check the v of k:v mapping.
+      map.put(preSum, map.getOrDefault(preSum, 0) + 1);
+      preSum += i;
+      r += map.getOrDefault(preSum - k, 0);
     }
+    return r;
+  }
 }
