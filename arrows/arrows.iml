@@ -13,5 +13,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="annotations-abi" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-slf4j-api-1.7.13" level="project" />
   </component>
 </module>
