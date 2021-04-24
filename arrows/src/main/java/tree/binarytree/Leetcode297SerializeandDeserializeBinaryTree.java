@@ -15,65 +15,69 @@
 
 package tree.binarytree;
 
+import java.util.*;
 
 public class Leetcode297SerializeandDeserializeBinaryTree {
-    static class TobeDeSerialized {
-        char[] data; // will be like "#,"; "1,2,#,#,3,4,#,#,5,#,#,";
-        int index;
-        int pre;
+  public class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
 
-        TobeDeSerialized(String data) {
-            this.data = data.toCharArray();
-        }
-
-        public String next() {
-            if (index == data.length) {
-                return null; // will not be here
-            }
-            pre = index;
-            while (index < data.length && data[index] != ',') {
-                index++;
-            }
-            return new String(data, pre, index++ - pre);
-        }
+    TreeNode(int x) {
+      val = x;
     }
+  }
+  // Implementation------------------------------------------------------------
+  /*
+  - root need to be the first one in the serialized string
+  Thus this will be preorder traversal
+  - how to mark null child? #
+  - how to know left and right subtree boundary? ( ) or ,
 
-    static private void readTreeByPreOrder(TreeNode n, StringBuilder r) {
-        if (n == null) {
-            r.append("#").append(",");
-            return;
-        }
-        r.append(n.v).append(",");
-        readTreeByPreOrder(n.left, r);
-        readTreeByPreOrder(n.right, r);
-    }
+  Preorder guarantee need not checking end of tree and serialized string.
+  It is no more no less.
+  `,` will make it easy to split the serialized string
+  Data structure:
+    serialization: use StringBuilder for any kind of value
+    deserialization: use LinkedList or char[] and current index.
+  O(N) time and space
+  */
 
-    // Encodes a tree to a single string.
-    static public String serialize(TreeNode root) {
-        StringBuilder r = new StringBuilder();
-        readTreeByPreOrder(root, r);
-        return r.toString();
+  // it is cost to keep all null
+  private void bs(StringBuilder b, TreeNode n) {
+    if (n == null) {
+      // `-1000 <= Node.val <= 1000`
+      b.append("#,");
+      return;
     }
+    b.append(n.val + ",");
+    bs(b, n.left);
+    bs(b, n.right);
+  }
 
-    static private TreeNode constructByPreOrder(TobeDeSerialized data) {
-        String v = data.next();
-        if (v.equals("#")) {
-            return null;
-        }
-        TreeNode node = new TreeNode(Integer.parseInt(v));
-        node.left = constructByPreOrder(data);
-        node.right = constructByPreOrder(data);
-        return node;
-    }
+  public String serialize(TreeNode root) {
+    StringBuilder b = new StringBuilder();
+    bs(b, root);
+    return b.toString();
+  }
 
-    // Decodes your encoded data to tree.
-    static public TreeNode deserialize(String data) {
-        return constructByPreOrder(new TobeDeSerialized(data));
-    }
+  public TreeNode deserialize(String data) {
+    return bt(new LinkedList(Arrays.asList(data.split(",")))); // O(N)
+  }
 
-    public static void main(String[] args) {
-        TreeNode tree = deserialize("1,2,#,#,3,4,#,#,5,#,#");
-        TreeNode.drawingInOrder(tree);
-        System.out.println(serialize(tree));
-    }
+  private TreeNode bt(List<String> l) {
+    String v = l.remove(0); // O(1) as the index is 0.
+    if (v.equals("#")) return null; // Note use equals() not ==
+    TreeNode n =
+        new TreeNode(Integer.parseInt(v)); // string to integer value. It is parseInt() not parse()
+    n.left = bt(l);
+    n.right = bt(l);
+    return n;
+  }
+  /*
+
+   The number of nodes in the tree is in the range [0, 104].
+   -1000 <= Node.val <= 1000
+  TODO: corner cases validation
+  */
 }
