@@ -1,4 +1,4 @@
-//  Copyright 2017 The keepTry Open Source Project
+//  Copyright 2021 The KeepTry Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
 // limitations under the License.
 //
 
-package graph.graph_directed_topological_sort;
-
-import org.omg.CORBA.INTERNAL;
-import org.omg.PortableInterceptor.INACTIVE;
+package graph.directed_graphs.topological_sort;
 
 import java.util.*;
 

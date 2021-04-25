@@ -1,4 +1,4 @@
-//  Copyright 2017 The keepTry Open Source Project
+//  Copyright 2021 The KeepTry Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,9 @@
 // limitations under the License.
 //
 
-package graph.graph_directed_topological_sort;
+package graph.directed_graphs.topological_sort;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * <pre>
