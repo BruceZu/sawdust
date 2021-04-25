@@ -19,61 +19,67 @@ import java.util.*;
 
 /**
  * <pre>
- *   why we need it? e.g. for build system
- * Condition:
- *          DAG：Directed Acyclic Graph
- * Aim:     a linear ordering of vertexes such that for every directed edge uv, vertex u comes before v in the ordering.
- * the solution is not necessarily unique;
+ * Condition: Directed Acyclic Graph(DAG)
  * Only one result condition:
- *          If a topological sort has the property that all pairs of consecutive vertices in the sorted order
- *          are connected by edges, then these edges form a directed Hamiltonian path in the DAG.
+ *          If a topological sort has the property that all pairs of consecutive vertices in
+ *          the sorted order  are connected by edges, then these edges form a directed
+ *          Hamiltonian path in the DAG.
  *          If a Hamiltonian path exists, the topological sort order is unique;
- *          全序: DAG中的任意一对顶点还需要有明确的关系(反映在图中，就是单向连通的关系)
  *
- * 1> Kahn's algorithm:
+ * 1> Kahn's algorithm(BFS)
+ *    See used in {@link Leetcode269AlienDictionary}
  *    Data structures:
- *      The node class should have 'ins' and 'outs'
- *      ALL: graph nodes
- *      L:  list that will contain the result. initialized by an empty list.
- *      S: container (it can be set, queue, stack) of all nodes with no incoming edges. find out all of them firstly.
+ *      2 map<node, set<node>>: 'ins'(1:n), 'outs' (1:n)
+ *                               ins can be map<node, Integer>. But this is not good choice as this need
+ *                               to avoid duplicated operations to increase the Integer value
+ *                               for 2 same relation or use map<node, list<ode> data structure for `out`
+ *      set<node> all: all nodes in graph, this can be merged with indegree maps `ins`, but
+ *                     not good as concept is not clean
+ *      queue: nodes with no incoming edges.
+ *      list/String (keep result)
  *
- *    Algorithm: BFS
- *      while S is non-empty do
- *          remove a node n from S.
- *          insert n into L, and remove each edge e from n to this outs, if a give out of n has no ins anymore, then
- *          push this out in S.
- *
- *      if S is empty and graph still has edges left
+ *    Algorithm steps:
+ *      initial `all` set
+ *      find out all edge to initial `in` and `out`
+ *      initial queue by all.removeAll(in.keySet())
+ *      while(  queue  is not  empty) {
+ *        BFS:
+ *          if current node `k` has not out set `value`, provide a empty set, do not run into null pointer.
+ *                                                       or initial out with an empty set during initialize the `all`
+ *          remove key in ins if its value set is empty: no ins for this node
+ *      }
+ *      if  `ins` set is not empty
  *          return error (graph has at least one cycle)
- *      else
- *          return L (a topologically sorted order)
  *
- *     cons: V need has ins;
- *           need find out all S firstly.
- *           need update the V
  *
- *     pros: can detect circle. do not need "visited" Set to check circle
+ *    Algorithm  cons:
+ *           need has ins;
+ *           need find out all nodes(Kept in `all` set) and edges(kept in and out maps).
+ *           need update the ins
  *
+ *    Algorithm pros: can detect circle. do not need "visited" Set to check circle
+ *    O(V+E) time and space
  *      todo A variation of Kahn's algorithm that breaks ties lexicographically forms a key component
  *      of the Coffman–Graham algorithm for parallel scheduling and layered graph drawing.
  *
- *  2> Depth-first search
+ *  2> Depth-first search(Assume it is DAG. no circle, need
+ *    - checking circle before running this algorithm)
+ *    - or merge  checking circle with  topological sort order together see
+ *      See used in {@link Leetcode269AlienDictionary}
  *
  *  data structure:
- *    Set<V> all nodes
- *    V class:  only outs
- *    Stack:  to keep the result 倒退时放入
+ *    Set: keep all nodes
+ *    map: only outs
+ *    stack:  to keep the result during on the back forward path
  *    Set: visited. avoid duplicated at merge point.
- *         不是用来checking circle
- *         (using isInCurVisitedPath checking circle see
- *         {@link Leetcode207CourseSchedule#hasCircle(int, List[], boolean[])}
+ *         Not be used to checking circle.
  *
- *    algorithm:
- *      post order + DFS
+ *   steps:  from each node to try DFS +  post order to keep result
  *
  *    cons:  need check circle firstly
- *    pros:  from any node to start
+ *    pros:  need not update the edge/connection relationship in indegree map, so no indegree map
  *
+ *   O(V+E) time and space
  *  todo The topological order can also be used to quickly compute shortest paths through
  *  a weighted directed(negative wight is allowed) acyclic graph.
  *
@@ -102,102 +108,153 @@ import java.util.*;
  *     o
  */
 public class TopologicalSort {
+  // 1> Kahn's algorithm ------------------------------------------------------
+  static class G {
+    private List<Integer>[] out;
+    private int[] in; // number of in nodes of the node whose ID is index of array in
+    private int V; // number of Vertex which has ID from 0 to V-1
 
-    static class G {
-        // make it simple, assume all Vertex is marked with ID from 0 to V-1.
-        // thus it is possible use array, else have to use Map and Node.
-        private List<Integer>[] vToAdjest;
-        private int[] inDegree;
-        private int V;
-
-        public G(int /* number of Vertex */ V) {
-            this.V = V;
-            vToAdjest = new List[V];
-            for (int i = 0; i < V; i++) {
-                vToAdjest[i] = new ArrayList();
-            }
-            inDegree = new int[V];
-        }
-
-        public G edge(int from, int to) {
-            vToAdjest[from].add(to);
-            inDegree[to]++;
-            return this;
-        }
-
-        public List topologicalOrder() {
-            Queue<Integer> relax = new LinkedList();
-
-            for (int i = 0; i < V; i++) {
-                if (inDegree[i] == 0) {
-                    relax.add(i);
-                }
-            }
-            List<Integer> r = new ArrayList<>(V);
-            Integer cur;
-            while ((cur = relax.poll()) != null) {
-                r.add(cur);
-                for (int ad : vToAdjest[cur]) {
-                    if (--inDegree[ad] == 0) {
-                        relax.add(ad);
-                    }
-                }
-            }
-
-            if (r.size() != V) {
-                System.out.println("There is circle. no topologicall sort order");
-                return null;
-            }
-            return r;
-        }
+    public G(int V) {
+      this.V = V;
+      out = new List[V];
+      for (int i = 0; i < V; i++) {
+        out[i] = new ArrayList();
+      }
+      in = new int[V];
     }
 
-    public static void main(String[] args) {
-        // graph is a case in algs4.cs.princeton.edu
-        G g = new G(8);
-        g.edge(0, 1)
-                .edge(0, 7)
-                .edge(0, 4)
-                .edge(1, 3)
-                .edge(1, 2)
-                .edge(1, 7)
-                .edge(4, 5)
-                .edge(4, 6)
-                .edge(4, 7)
-                .edge(7, 2)
-                .edge(7, 5)
-                .edge(5, 2)
-                .edge(5, 6)
-                .edge(2, 3)
-                .edge(2, 6)
-                .edge(3, 6);
-        System.out.println(g.topologicalOrder());
+    public G edge(int from, int to) {
+      out[from].add(to);
+      in[to]++;
+      return this;
     }
 
-    // ----------------------------------------------------------
-    // as do not care edge weight, make the data structure simple.
-    class V {
-        Set<V> outgoings; // neighbors
-    }
-
-    // Assume this is not circle
-    public static Stack<V> topoSort(Set<V> vs) {
-        Stack<V> r = new Stack();
-        Set<V> visited = new HashSet<>();
-
-        for (V v : vs) {
-            dfsPosterOrder(v, r, visited);
+    public List topologicalOrder() {
+      Queue<Integer> q = new LinkedList();
+      for (int i = 0; i < V; i++) {
+        if (in[i] == 0) {
+          q.add(i); // those nodes who has not  in node(s)
         }
-        return r;
-    }
-
-    private static void dfsPosterOrder(V v, Stack<V> r, Set<V> visited) {
-        if (!visited.contains(v)) {
-            visited.add(v);
-            for (V out : v.outgoings) {
-                dfsPosterOrder(out, r, visited);
-            }
-            r.push(v); // post order
+      }
+      List<Integer> r = new ArrayList<>(V);
+      Integer n; // node Id
+      while ((n = q.poll()) != null) {
+        r.add(n);
+        for (int o : out[n]) {
+          if (--in[o] == 0) {
+            // if the in use map then also need remove map entry when the node has no in
+            // nodes
+            q.add(o);
+          }
         }
+      }
+
+      if (r.size() != V) {
+        return null; // there is circle
+      }
+      return r;
     }
+  }
+
+  // 2> DFS -------------------------------------------------------------------
+  // as do not care edge weight, make the data structure simple.
+  class Node {
+    public char v; // unique ID
+  }
+
+  /*
+  DFS used only for DAG. So need check if there is circle in the graph
+  which is presents with outgoing relation where for node which has not
+  edge the out.get(node) is a empty set.
+  */
+  public static String topologicalSortOrder(Map<Node, Set<Node>> out) {
+    Map<Node, Boolean> inPath = new HashMap<>();
+    for (Node n : out.keySet()) if (hasCircle(n, out, inPath)) return "";
+
+    StringBuilder r = new StringBuilder();
+    Set<Node> visited = new HashSet();
+    for (Node v : out.keySet()) dfsCalculateTopologicalOrder(v, out, r, visited);
+    return r.reverse().toString();
+  }
+  /*
+   hasCircle`(1) with  `topological sort order`(2)
+   Both (1) and（2）
+     - start each node to try
+     - visit all nodes and edges
+
+   But:
+   (1) requires to exit once meet visited node
+   (2) requires stop once meet visited node
+
+   (1) requires clean tracks on the back forward path
+   (2) requires never clean the visited record
+
+   They can merged together but not easy to read
+  */
+  private static void dfsCalculateTopologicalOrder(
+      Node n, Map<Node, Set<Node>> out, StringBuilder r, Set<Node> calculated) {
+    if (calculated.contains(n)) return; // stop this path
+    calculated.add(n);
+    for (Node o : out.get(n)) dfsCalculateTopologicalOrder(o, out, r, calculated);
+    r.append(n); // Topological Order: Only all sub tree are recorded can record current node.
+  }
+
+  private static boolean hasCircle(Node n, Map<Node, Set<Node>> out, Map<Node, Boolean> inPath) {
+    // Do not use:  if (inPath.containsKey(n) && inPath.get(n)) return true;
+    // if it is false: need not repeat the ever visited and no circle founded path.
+    if (inPath.containsKey(n)) return inPath.get(n); // stop this path
+    inPath.put(n, true);
+    for (Node o : out.get(n))
+      if (hasCircle(o, out, inPath)) return true; // stop the loop and feedback directly
+    inPath.put(n, false);
+    return false;
+  }
+  // merged 2 function: find a circle?(1) + calculate Topological Sort Order(2)
+  private static boolean merged(
+      Node n, Map<Node, Boolean> mark, StringBuilder r, Map<Node, Set<Node>> out) {
+    if (mark.containsKey(n)) {
+      // For (2): it is calculated and need not continue.and calculate more.
+      // For (1):
+      // - value is true : then current path has circle now, need to exit;
+      // - value is false: not in current path, but as it visited, need not repeat it. can sure no
+      // circle on that part else it has exit.
+      return mark.get(n);
+    }
+    // never visited
+    mark.put(n, true); // never remove this entry. used by (2)
+    for (Node o : out.get(n)) {
+      if (merged(o, mark, r, out)) return true;
+      // else: no circle found in current sub path/tree and finished calculating topological sort
+      // order need check left sub path/tree
+    }
+    // in all current sub path/tree: no circle found and finished calculating topological sort order
+    // For（2）: According to Topological Order: Only all sub tree are recorded can record current
+    // node. It is time to record current node
+    r.append(n.v); // keep record into result on the back forward path so need reverse at last
+    // For(1): clean current path track, the `true` value is used to judge on the same current path
+    mark.put(n, false);
+    return false; // no circle is found
+  }
+  // --------------------------------------------------------------------------
+  public static void main(String[] args) {
+    // graph is a case in algs4.cs.princeton.edu
+    G g = new G(8);
+    g.edge(0, 1)
+        .edge(0, 7)
+        .edge(0, 4)
+        .edge(1, 3)
+        .edge(1, 2)
+        .edge(1, 7)
+        .edge(4, 5)
+        .edge(4, 6)
+        .edge(4, 7)
+        .edge(7, 2)
+        .edge(7, 5)
+        .edge(5, 2)
+        .edge(5, 6)
+        .edge(2, 3)
+        .edge(2, 6)
+        .edge(3, 6);
+    System.out.println(g.topologicalOrder());
+  }
 }
