@@ -15,46 +15,31 @@
 
 package array;
 
-/**
- * Given an array of n integers where n > 1, nums, return an array output such that output[i] is
- * equal to the product of all the elements of nums except nums[i].
- *
- * <p>Solve it without division and in O(n).
- *
- * <p>For example, given [1,2,3,4], return [24,12,8,6].
- *
- * <p>Follow up:
- *
- * <p>Could you solve it with constant space complexity? (Note: The output array does not count as
- * extra space for the purpose of space complexity analysis.)
- * https://leetcode.com/problems/product-of-array-except-self/
- */
-public class Leetcode238ProductOfArrayExceptSelf {
-  public static int[] productExceptSelf2(int[] nums) {
-    int[] r = new int[nums.length];
-    for (int i = 0; i < r.length; i++) {
-      r[i] = 1;
-    }
-    for (int i = 0, j = nums.length - 1, lp = 1, rp = 1; i < nums.length; ++i, --j) {
-      r[i] *= lp;
-      lp *= nums[i];
-      r[j] *= rp;
-      rp *= nums[j];
-    }
-    return r;
-  }
+import java.util.Arrays;
 
-  public static int[] productExceptSelf(int[] nums) {
-    int[] r = new int[nums.length];
-    r[r.length - 1] = 1;
-    for (int i = r.length - 2; i >= 0; i--) {
-      r[i] = r[i + 1] * nums[i + 1];
+public class Leetcode238ProductOfArrayExceptSelf {
+  /*
+  Idea:
+   result[i] = product[0,i-1] * product[i+1,length-1]
+   So It can be calculated in 2 steps.
+    1> result[i] = product[0,i-1]
+    2> result[i] = result[i] * product[i+1,length-1]
+   If initial element of result[] with 1
+    1> result[i] = result[i] * product[0,i-1]
+    2> result[i] = result[i] * product[i+1,length-1]
+   */
+  public int[] productExceptSelf(int[] nums) {
+    int[] re = new int[nums.length];
+    Arrays.fill(re, 1); // initial re[i] is 1
+    int N = nums.length;
+    int l = 1, r = 1; // cumulative product of [0,i-1] and of [j+1,length-1]
+    for (int i = 0, j = N - 1; i < N && j >= 0; i++, j--) {
+      re[i] *= l; // note it is *= not =
+      l *= nums[i];
+
+      re[j] *= r;
+      r *= nums[j];
     }
-    int lp = 1;
-    for (int i = 1; i < r.length; i++) {
-      lp *= nums[i - 1];
-      r[i] *= lp;
-    }
-    return r;
+    return re;
   }
 }

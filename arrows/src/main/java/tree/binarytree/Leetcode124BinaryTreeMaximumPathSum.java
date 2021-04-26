@@ -17,73 +17,61 @@ package tree.binarytree;
 
 // not find the fast way yet.
 public class Leetcode124BinaryTreeMaximumPathSum {
-    // same case is http://www.cnblogs.com/kaituorensheng/p/3555151.html
 
-    private static int max = Integer.MIN_VALUE;
+  public static class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
 
-    public static int maxPathSum(TreeNode root) {
-        int rd = dfs(root);
-        return rd > max ? rd : max;
+    TreeNode() {}
+
+    TreeNode(int val) {
+      this.val = val;
     }
 
-    // close paths:
-    // 1 left leaf
-    // 2 right leaf
-    // 3 left + root + right
-    //
-    // open paths:
-    // 4 root
-    // 5 left + root
-    // 6 right + root
-    private static int dfs(TreeNode<Integer> root) {
-        if (root.left == null && root.right == null) {
-            return root.v;
-        }
-        if (root.left == null && root.right != null) {
-            int rPathMax = dfs(root.right);
-            max = rPathMax > max ? rPathMax : max;
-            return Math.max(root.v, rPathMax + root.v);
-        }
-        if (root.right == null && root.left != null) {
-            int lPathMax = dfs(root.left);
-            max = lPathMax > max ? lPathMax : max;
-            return Math.max(root.v, lPathMax + root.v);
-        }
-        int lPathMax = dfs(root.left);
-        int rPathMax = dfs(root.right);
-        int closePathMax = lPathMax + rPathMax + root.v;
-
-        int innerMax = Math.max(closePathMax, Math.max(lPathMax, rPathMax));
-        max = innerMax > max ? innerMax : max;
-        return Math.max(root.v, Math.max(lPathMax + root.v, rPathMax + root.v));
+    TreeNode(int val, TreeNode left, TreeNode right) {
+      this.val = val;
+      this.left = left;
+      this.right = right;
     }
+  }
+  // implement--------------------------------------------------------------------------
+  /*
+  IDEA: 6 possible length
+    1 v
+    2 l (processed in the sub tree, ignore it)
+    3 r (processed in the sub tree, ignore it))
+    4 l+v
+    5 r+v
+    6 l+v+r
+    three of them starting from current node and the biggest one of these 3
+    need be return and used for above level
 
-    public static int maxPathSum2(TreeNode root) {
-        dfs2(root);
-        return max;
-    }
+    then the bigger one of result and l+v+r will be used to update max=Math.max(max,l+v+r )
 
-    private static int dfs2(TreeNode<Integer> root) {
-        if (root == null) {
-            return 0;
-            // thus without many 'if else' branches
-            //     1
-            //    / \
-            //   2   3
-            //  / \ / \
-            // 0  0 0 0
-        }
-        int lpMax = dfs2(root.left);
-        int rpMax = dfs2(root.right);
-        if (lpMax + rpMax + root.v > max) {
-            max = lpMax + rpMax + root.v;
-        }
 
-        // replace max with 0 when the max is negative.
-        // Thus there is not negative value in the tree and need not
-        // care about single nodes.
-        // 1> As a result there only 3 lines left.
-        // 2> It does not affect the result value.
-        return Math.max(0, root.v + Math.max(lpMax, rpMax));
-    }
+   O(N) time, O(H) space
+   N is number of nodes
+   H is a tree height
+  */
+  int max = Integer.MIN_VALUE;
+
+  public int maxPathSum(TreeNode root) {
+    /*
+      The number of nodes in the tree is in the range [1, 3 * 10^4].
+      -1000 <= Node.val <= 1000
+      TODO: check corner cases
+    */
+    help(root);
+    return max;
+  }
+
+  private Integer help(TreeNode root) {
+    if (root == null) return 0;
+    int l = help(root.left);
+    int r = help(root.right);
+    int result = Math.max(Math.max(r, l) + root.val, root.val);
+    max = Math.max(max, Math.max(result, l + r + root.val));
+    return result;
+  }
 }
