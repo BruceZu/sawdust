@@ -19,38 +19,36 @@ package array;
 
 /** @see <a href="https://leetcode.com/problems/merge-sorted-array/">leetcode</> */
 public class Leetcode88MergeSortedArray {
-  public static void merge1(int[] nums1, int m, int[] nums2, int n) {
-    int findBiggerFrom = 0;
-    for (int s = 0; s < n; s++) {
-      int insertTo = -1;
-      for (int f = findBiggerFrom; f < m; f++) {
-        if (nums1[f] > nums2[s]) {
-          insertTo = f;
-          break;
-        }
-      }
-      if (insertTo == -1) {
-        insertTo = m;
-      }
+  public static void merge2(int[] A, int m, int[] B, int n) {
+    /*
 
-      for (int i = m - 1; i >= insertTo; i--) {
-        nums1[i + 1] = nums1[i];
+     nums1.length == m + n
+     nums2.length == n
+     0 <= m, n <= 200
+     1 <= m + n <= 200
+     -10^9 <= nums1[i], nums2[i] <= 10^9
+    */
+    // TODO: check corner cases
+    int l = m - 1, r = n - 1, i = m + n - 1;
+    while (l >= 0 || r >= 0) {
+      if (l >= 0 && r >= 0) {
+        if (A[l] > B[r]) A[i--] = A[l--]; // select the bigger one
+        else A[i--] = B[r--];
+        continue;
       }
-      m++;
-      nums1[insertTo] = nums2[s];
-      findBiggerFrom = insertTo + 1;
+      // both index l and i  >=0. delete this code block will be endless loop
+      if (l >= 0) break;
+
+      if (r >= 0) {
+        A[i--] = B[r--];
+        continue;
+      }
     }
   }
 
-  public void merge(int[] nums1, int m, int[] nums2, int n) {
-    int cur1 = m - 1, cur2 = n - 1, end = m + n - 1;
-    while (cur1 >= 0 && cur2 >= 0) {
-      nums1[end--] = nums1[cur1] > nums2[cur2] ? nums1[cur1--] : nums2[cur2--];
-    }
-    if (cur1 <= 0) {
-      while (cur2 >= 0) {
-        nums1[end--] = nums2[cur2--];
-      }
-    }
+  public void merge(int[] A, int m, int[] B, int n) {
+    int l = m - 1, r = n - 1, i = m + n - 1;
+    while (l >= 0 && r >= 0) A[i--] = A[l] > B[r] ? A[l--] : B[r--];
+    while (r >= 0) A[i--] = B[r--];
   }
 }
