@@ -15,45 +15,26 @@
 
 package bitmanipulation;
 
-/**
- * <pre>
- * Difficulty: Medium
- * Given an array containing n distinct numbers taken from 0, 1, 2, ..., n,
- * find the one that is missing from the array.
- *
- * For example,
- * Given nums = [0, 1, 3] return 2.
- *
- * Note:
- * Your algorithm should run in linear runtime complexity. Could you implement it using only constant extra space complexity?
- *
- *   Tags: Array, Math, Bit Manipulation
- *
- *  Similar Problems:
- *  (H) First Missing Positive
- *  (M) Single Number
- *  (H) Find the Duplicate Number
- */
 public class Leetcode268MissingNumber {
-    public int missingNumber(int[] nums) {
-        int sum = 0;
-        int all = 0;
+  public int missingNumber(int[] nums) {
+    int sum = 0;
+    int all = 0;
 
-        for (int i = 0; i <= nums.length - 1; i++) {
-            sum += nums[i];
-            all += i;
-        }
-        all += nums.length;
-        return all - sum;
+    for (int i = 0; i <= nums.length - 1; i++) {
+      sum += nums[i];
+      all += i;
     }
+    all += nums.length;
+    return all - sum;
+  }
 
-    public int missingNumber2(int[] nums) {
-        int xor = 0;
-        for (int i = 0; i <= nums.length - 1; i++) {
-            xor ^= nums[i];
-            xor ^= i;
-        }
-        xor ^= nums.length;
-        return xor;
+  public int missingNumber2(int[] nums) {
+    int x = 0;
+    for (int i = 0; i <= nums.length - 1; i++) {
+      x ^= nums[i];
+      x ^= i;
     }
+    x ^= nums.length;
+    return x;
+  }
 }

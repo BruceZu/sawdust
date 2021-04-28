@@ -28,58 +28,47 @@ import java.util.Stack;
  * where h is the height of the tree.
  */
 public class Leetcode173BinarySearchTreeIterator {
-    /**
-     * Definition for binary tree
-     */
-    public class TreeNode {
-        int val;
-        TreeNode left;
-        TreeNode right;
+  /** Definition for binary tree */
+  public class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
 
-        TreeNode(int x) {
-            val = x;
-        }
+    TreeNode(int x) {
+      val = x;
+    }
+  }
+
+  // implement ----------------------------------------------------------------
+  class BSTIterator {
+    // top down in ascending order. not descending
+    private Stack<TreeNode> s = new Stack();
+
+    public BSTIterator(TreeNode n) {
+      while (n != null) {
+        s.push(n);
+        n = n.left;
+      }
     }
 
-    // top down in ascending order .  Care not descending
-    class BSTIterator {
-        private Stack<TreeNode> nodesStackAscending = new Stack();
-
-        public BSTIterator(TreeNode root) {
-            while (root != null) {
-                nodesStackAscending.push(root);
-                root = root.left;
-            }
-        }
-
-        /**
-         * @return whether we have a next smallest number
-         * care:  this means ascending top down
-         */
-        public boolean hasNext() {
-            return !nodesStackAscending.empty(); // care: need !
-        }
-
-        /**
-         * @return the next smallest number
-         */
-        public int next() {
-            if (!hasNext()) { // care: check hasNext() firstly
-                return -1;
-            }
-            TreeNode node = nodesStackAscending.pop(); // care: not peek
-            int v = node.val;
-
-            //
-            if (node.right != null) {
-                node = node.right;
-                while (node != null) {
-                    nodesStackAscending.push(node);
-                    node = node.left;
-                }
-            }
-
-            return v;
-        }
+    public boolean hasNext() {
+      return !s.empty();
     }
+
+    public int next() {
+      if (!hasNext()) return -1;
+
+      TreeNode n = s.pop(); // care: not peek
+      int v = n.val;
+
+      if (n.right != null) {
+        n = n.right;
+        while (n != null) {
+          s.push(n);
+          n = n.left;
+        }
+      }
+      return v;
+    }
+  }
 }
