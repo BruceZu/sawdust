@@ -16,60 +16,66 @@
 package math;
 
 public class LeetCode50Power {
-    // Leetcode 50 pow(x,n)
-    // recursion
-    // the total number of operations is O(logn)
-    // its memory usage is O(logn) as well.
-    public static double power(double x, int n) {
-        if (x == 1) {
-            return 1;
-        }
+  /*
+      -100.0 < x < 100.0
+      -2^31 <= n <= 2^31-1 (Note!)
+      -104 <= x^n <= 104
+  */
+  /*
+  Test cases:
+    b=0;
+    p=0;
+    b=1;
+    p=1;
+    b is negative integer
+    p is Integer.MIN_VALUE
+  */
 
-        if (x == -1) {
-            return (n & 1) == 1 ? -1 : 1;
-        }
+  // O( $log^N$) time and O(1) space
+  // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+  public double pow(double b, int n) {
+    long p = n; // why? reason is `p = -p;`
+    if (b == 0) return 0;
+    if (p == 0) return 1;
+    if (b == 1) return 1;
 
-        boolean negative = false;
-        if (n < 0) {
-            negative = true;
-            n = -n;
-        }
+    if (p < 0) {
+      b = 1 / b;
+      p = -p;
+      /*
+      In Java for the Integer type the Integer.MIN_VALUE = -2147483648
+       -(-2147483648) is still -2147483648.
+      Because Integer.MAX_VALUE is 2147483647
+      2147483648=2147483647+1 is -2147483648 not 2147483648
+      `p = -p; ` does not apply to Integer.MIN_VALUE
+      this is why `long p=n` at start;
+      */
 
-        if (n == 0) {
-            return 1;
-        }
-        double result = power(x, n >> 1);
-        result *= result;
-        if ((n & 1) == 1) {
-            result *= x;
-        }
-        return negative ? 1 / result : result;
     }
-
-    // Leetcode 50 pow(x,n)
-    // nonrecursive implementation
-    // its not the fast one, only runtime beats 29.88% of java submissions on 2/1/2016.
-    static double power2(double x, int n) {
-        if (x == 1) {
-            return 1;
-        }
-
-        if (x == -1) {
-            return (n & 1) == 1 ? -1 : 1;
-        }
-
-        boolean negative = false;
-        if (n < 0) {
-            negative = true;
-            n = -n;
-        }
-
-        double result = 1;
-        for (; n >= 1; x *= x, n >>= 1) {
-            if ((n & 1) == 1) {
-                result *= x;
-            }
-        }
-        return negative ? 1 / result : result;
+    double r = 1;
+    while (p >= 1) {
+      if ((p & 1) == 1) r *= b;
+      b *= b;
+      p >>>= 1;
     }
+    return r;
+  }
+  // recursion
+  // O(logN) time and space
+  public static double myPow(double x, int n) {
+    if (x == 0) return 0;
+    if (n == 0) return 1;
+    if (n < 0) {
+      x = 1 / x;
+      n = -n;
+    }
+    // must use >>> not >> thus
+    // Integer.MIN_VALUE>>1 is -1073741824
+    // Integer.MIN_VALUE>>>1 is 1073741824 it is same result of
+    // 2147483648/2
+    double r = myPow(x, n >>> 1);
+    r *= r;
+    if ((n & 1) == 1) r *= x;
+    return r;
+  }
 }
