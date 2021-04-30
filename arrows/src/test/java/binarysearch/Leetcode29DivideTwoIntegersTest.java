@@ -15,13 +15,13 @@
 
 package binarysearch;
 
+import math.Leetcode29DivideTwoIntegers;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class Leetcode29DivideTwoIntegersTest {
-    @Test(timeout = 30l, expected = Test.None.class)
+    @Test(timeout = 30000l, expected = Test.None.class)
     public void test() {
-
         Assert.assertEquals(Leetcode29DivideTwoIntegers.divide(0, 5), 0);
         Assert.assertEquals(Leetcode29DivideTwoIntegers.divide(2, 0), Integer.MAX_VALUE);
 

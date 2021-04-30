@@ -30,26 +30,57 @@ public class Leetcode140WordBreakII {
      */
     // TODO: check corner caces
     // O(?) time and space
-    Set<String> d = new HashSet();
-    d.addAll(wordDict);
 
+    // test cases:
+    // defend cases:
+    //    null,
+    //    duplicated value in dictionary
+    //    "亚洲"(industry code)
+    // special cases:
+    //    str does not contain any word in dictionary;
+    //     ""
+    //    str contain only one word not in dictionary;
+
+    /*
+    Idea:
+      DFS(backtracking, DP top-down which need a cache)
+      if current str is "" then return "";
+      For each word the current str starts with in dictionary:
+        merge it with all substring returned sentences(if existing) to result;
+        if no sub sentences, return empty result
+        if no word found the cur str starts with return empty result
+
+     TODO: O(?) time and space. depends on directory and str.
+    */
+
+    Set<String> d = new HashSet<>();
+    wordDict.stream().forEach(w -> d.add(w));
+    // assume no hash collision; or `d.addAll(wordDict);`
     return dfs(s, d, new HashMap<>());
   }
 
-  List<String> dfs(String s, Set<String> d, HashMap<String, List<String>> cache) {
-    if (cache.containsKey(s)) return cache.get(s);
-    List<String> ss = new LinkedList<>(); // sentences
-    if (s.length() == 0) {
-      ss.add("");
-      return ss;
+  List<String> dfs(String s, Set<String> d, Map<String, List<String>> c) {
+    // when to stop if dfs
+    if (c.containsKey(c)) return c.get(s);
+    List<String> r = new LinkedList();
+    if (s.isEmpty()) {
+      r.add("");
+      // previous part of current sentence is valid and end. its meaning is not same as
+      // empty list which means
+      // can find word in dictionary the current s starts with and
+      // thus current sentence is invalid
+      return r;
     }
-    for (String w : d) {
+    for (String w : d) { // for each w from dictionary to check if s starts with it.
       if (s.startsWith(w)) {
-        List<String> subss = dfs(s.substring(w.length()), d, cache);
-        for (String subs : subss) ss.add(w + (subs.isEmpty() ? "" : " ") + subs);
+        List<String> subs = dfs(s.substring(w.length()), d, c);
+        for (String stc : subs) {
+          String v = stc.isEmpty() ? "" : " " + stc;
+          r.add(w + v);
+        }
       }
     }
-    cache.put(s, ss);
-    return ss;
+    c.put(s, r);
+    return r; // empty list if no word the current s starts with
   }
 }
