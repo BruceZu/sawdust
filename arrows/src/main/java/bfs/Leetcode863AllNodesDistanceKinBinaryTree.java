@@ -112,6 +112,7 @@ public class Leetcode863AllNodesDistanceKinBinaryTree {
       r.add(q.poll().val);
     }
   }
+
   // Implement: BFS in DFS ----------------------------------------------------------------
   // Idea comes from 'Leetcode Solution 2'
   // (N）Time
@@ -133,9 +134,10 @@ public class Leetcode863AllNodesDistanceKinBinaryTree {
       return true;
     }
     boolean l = dfs(node.left, dis, K, result, target), r = dfs(node.right, dis, K, result, target);
+    // Each node in the tree has unique value
     if ((l || r) && dis[0] == K) result.add(node.val);
-    if (l && dis[0] + 1 <= K && node.right != null) bfs(node.right, K - (dis[0] + 1), result);
-    if (r && dis[0] + 1 <= K && node.left != null) bfs(node.left, K - (dis[0] + 1), result);
+    if (l && dis[0] < K && node.right != null) bfs(node.right, K - (dis[0] + 1), result);
+    if (r && dis[0] < K && node.left != null) bfs(node.left, K - (dis[0] + 1), result);
 
     if (l || r) dis[0]++;
     return l || r;

@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-package tree.Trie;
+package tree.trie;
 
 import java.io.File;
 import java.io.FileNotFoundException;
