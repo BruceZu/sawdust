@@ -17,44 +17,50 @@ package graph.directed_graphs;
 
 import java.util.*;
 
-/**
- * <img src="../../../resources/graph_list_have_circle_clone.png" height="400" width="600">
- * <a href="https://leetcode.com/problems/clone-graph/">leetcode</a>
- */
 public class Leetcode133CloneGraph {
 
-    public static UndirectedGraphNode cloneGraph(UndirectedGraphNode node) {
-        if (node == null) { // care
-            return null;
-        }
-        // map: used to from circle later and keep visited nodes
-        Map<UndirectedGraphNode, UndirectedGraphNode> map = new HashMap<>();
+  static class Node {
+    public int val;
+    public List<Node> neighbors;
 
-        UndirectedGraphNode nodeClone = new UndirectedGraphNode(node.label);
-        map.put(node, nodeClone);
-
-        cloneNexts(node.neighbors, nodeClone, map);
-        return nodeClone;
+    public Node() {
+      val = 0;
+      neighbors = new ArrayList<Node>();
     }
 
-    // DFS deep clone neighbors
-    private static void cloneNexts(List<UndirectedGraphNode> curNexts, UndirectedGraphNode curClone,
-                                   Map<UndirectedGraphNode, UndirectedGraphNode> map) {
-        if (curNexts.isEmpty()) {
-            return;
-        }
-
-        for (UndirectedGraphNode curNext : curNexts) {
-            if (!map.containsKey(curNext)) {
-                UndirectedGraphNode curNextClone = new UndirectedGraphNode(curNext.label);
-                map.put(curNext, curNextClone);
-
-                curClone.neighbors.add(curNextClone);
-                cloneNexts(curNext.neighbors, curNextClone, map);
-            } else {
-                // need a map. map node to its clone. used here to form the circle in clone graph
-                curClone.neighbors.add(map.get(curNext));
-            }
-        }
+    public Node(int _val) {
+      val = _val;
+      neighbors = new ArrayList<Node>();
     }
+
+    public Node(int _val, ArrayList<Node> _neighbors) {
+      val = _val;
+      neighbors = _neighbors;
+    }
+  }
+  // implement ------------------------------------------------------------------
+  public Node cloneGraph(Node node) {
+    /*
+    1 <= Node.val <= 100
+    Node.val is unique for each node.
+    Number of Nodes will not exceed 100.
+    There is no repeated edges and no self-loops in the graph.
+    The Graph is connected and all nodes can be visited starting from the given node.
+    */
+    /*
+    Idea:
+     recursion. With a created map of v: Node to avoid duplicated clone
+     O(N) time and space
+    */
+    return help(node, new HashMap<>());
+  }
+
+  private Node help(Node n, Map<Integer, Node> created) {
+    if (n == null) return null;
+    if (created.containsKey(n.val)) return created.get(n.val);
+    Node c = new Node(n.val);
+    created.put(n.val, c);
+    for (Node nei : n.neighbors) c.neighbors.add(help(nei, created));
+    return c;
+  }
 }
