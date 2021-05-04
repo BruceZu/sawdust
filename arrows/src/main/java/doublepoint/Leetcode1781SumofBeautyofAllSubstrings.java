@@ -30,6 +30,7 @@ public class Leetcode1781SumofBeautyofAllSubstrings {
       1. The substring length >= 3
       2. for all substring with length >=3 reuse
          calculating the frequent of each characters by sliding window
+         whose left side is fixed and only the right side keep extending
     */
     int N = s.length();
     int sum = 0;
@@ -37,15 +38,18 @@ public class Leetcode1781SumofBeautyofAllSubstrings {
       // only lowercase English letters.
       int[] fre = new int[26];
       // 1 <= s.length <= 500;
-      int[] freCount = new int[500];
-      freCount[0] = 26;
+      int[] count = new int[500]; // count[f] is the number of char with same frequency number f
+      count[0] = 26; // initial value when window has not any char
       int min = 1, max = 1;
       for (int j = i; j < N; j++) {
         int n = s.charAt(j) - 'a';
-        freCount[fre[n]]--;
-        if (freCount[fre[n]] == 0 && min == fre[n]) min = fre[n] + 1;
+        // before add current char frequency
+        count[fre[n]]--;
+        if (count[fre[n]] == 0 && min == fre[n]) min = fre[n] + 1;
+        // add
         fre[n]++;
-        freCount[fre[n]]++;
+        // after add
+        count[fre[n]]++;
         if (fre[n] > max) max = fre[n];
         if (fre[n] == 1 && min != 1) min = 1;
         //
@@ -53,9 +57,5 @@ public class Leetcode1781SumofBeautyofAllSubstrings {
       }
     }
     return sum;
-  }
-
-  public static void main(String[] args) {
-    System.out.println(beautySum("aabcb") == 5);
   }
 }
