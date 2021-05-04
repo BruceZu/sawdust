@@ -17,6 +17,7 @@ package tree.heap;
 
 import org.junit.Assert;
 import org.junit.Test;
+import sort.heap.Heap;
 
 public class TestHeap {
     @Test(timeout = 10l, expected = Test.None.class)

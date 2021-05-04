@@ -15,8 +15,10 @@
 
 package sort;
 
+import sort.heap.Heap;
+
 /**
- * See {@link  tree.heap.Heap#add(Comparable, boolean)} and {@link  tree.heap.Heap#delete(boolean)}
+ * See {@link  Heap#add(Comparable, boolean)} and {@link  Heap#delete(boolean)}
  */
 public class HeapSort {
     public void f(String[] args) {
