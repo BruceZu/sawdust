@@ -16,93 +16,123 @@
 package sort;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
-import static common_lib.Common.swap;
-
-/**
- * <pre>
- * Note:
- * You may assume all input has valid answer.
- * ====================================
- *
- * step 1.
- * find the median (or left median) value
- *
- * step 2.
- * wiggle sort with the median value to make nums[0] < nums[1] > nums[2] < nums[3]....
- * loop along the order:  odd index, even index to do  separation in 3 ways
- * biggers, medieans, smallers, thus biggers will be at odd index and smallers will be at even index
- * and medians will be separated too by wiggle index.
- *
- * Follow up:
- *   1 Can you do it in O(n) time and/or in-place with O(1) extra space?
- *   2 Todo: how about  nums[0] > nums[1] < nums[2] > nums[3]....
- *
- * reference www.careercup.com and stackoverflow.com
- * and
- * @see
- * <a href="https://leetcode.com/problems/wiggle-sort-ii/">
- *     leetcode</a>
- * <br> <a href="https://en.wikipedia.org/wiki/Introselect">
- *     introspective selection</a>
- * <br> <a href="https://en.wikipedia.org/wiki/Selection_algorithm">
- *     selection algorithm</a>
- * <br><a href="https://en.wikipedia.org/wiki/Median_of_medians">
- *     median of medians</a>
- * <br><a href="https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm">
- *     Floyd–Rivest algorithm</a>
- * <br><a href="https://en.wikipedia.org/wiki/Dutch_national_flag_problem#Pseudocode">
- *     Dutch national flag problem</a>
- */
 public class Leetcode324WiggleSortII {
-    public static void wiggleSort(int[] nums) {
-        Arrays.sort(nums); // o(NlgN)
-        wiggleSortPartitionedArrayIn3ways(nums, nums[nums.length - 1 >> 1]);// median or left median
-    }
+  /*
+   Idea:
+   Sort array in ascending and clone it
+   working in original array as result array.
+   allocate number in sorted array with index -> result array with index :
+   - mid-> 0  ->  0,2,...,N-1 (even index)
+   - N-1->mid+1 to  1,3,...,N-1(odd index)
 
-    /**
-     * <pre>
-     * o(n) time, o(1) extra space
-     *
-     * partitioned array:
-     *       array where the smallers and biggers are separated by median without sorted on both sides
-     * midV:  median or left median value
-     *  With this method array is wiggled sorted as 3 way ->
-     *  in order of biggers( -> odd index), mideans, smallers ( -> even index)
-     */
-    public static void wiggleSortPartitionedArrayIn3ways(int[] A, int midV) {
-        int b = 0; // next Biger Sequence. Ascending
-        int i = 0; // sequence of current . Ascending
-        int s = A.length - 1;// next Smaller Sequence. Descending
+   Note: processing the element in sorted array in descending order,
+    thus separate the middle part to both side to avoid them become
+    neighbor if they have duplicate continuous numbers
 
-        while (i <= s) {
-            if (A[wiggleIndex(i, A)] > midV) {
-                swap(A, wiggleIndex(i, A), wiggleIndex(b, A));// wiggle order
-                i++;
-                b++;
-            } else if (A[wiggleIndex(i, A)] < midV) {
-                swap(A, wiggleIndex(i, A), wiggleIndex(s, A));
-                s--;
-            } else {
-                i++;
-            }
-        }
-    }
+  O(NlgN) time and O(N) space
+   */
+  public static void wiggleSortOriginal(int[] A) {
+    int N = A.length;
+    Arrays.sort(A); // O(NlgN)
+    int[] s = Arrays.copyOf(A, N); // O(N) extra space
 
-    // Get the true iterator order of index, the wiggle order index, in loop of wiggleSortPartitionedArray()
-    // wiggle order: Jump over or skip one index each time
-    public static int wiggleIndex(int i, int[] arr) {
-        // 1, 3 ,5 ,....0,2,4,...
-        // odd          even
-        // bigger       smaller
-        return (i * 2 + 1) % (arr.length | 1);
-    }
+    int mi = (N & 1) == 0 ? N / 2 - 1 : N / 2; // (left) median index
+    int e = N - 1;
 
-    public static void main(String[] args) {
-        // test cases
-        //  2, 3, 6, 7; 9, 9, 9 ; 11, 12, 13, 15;  midv : 9
-        //  9, 12, 15, 6, 9, 2, 7, 3, 11, 13, 9;   midv : 9
-        //  1, 2, 3, 3, 4; midv : 3
+    for (int i = 0; i < N; i += 2, e--, mi--) { // i: index of result array
+      A[i] = s[mi]; // from mi -> 0
+      if (i + 1 < N) { // existing
+        A[i + 1] = s[e]; // from N-1-> mi+1
+      }
     }
+  }
+  // --------------------------------------------------------------------------
+
+  /*
+   O(N)runtime and O(1) extra space
+
+   */
+  public static void wiggleSort(int[] A) {
+    // index of (left) median;
+    int m = A.length - 1 >> 1;
+    quickSelectlocateKInAscending(A, 0, A.length - 1, m);
+    wiggleSortPartitionedArrayIn3ways(A, A[m]);
+  }
+  // arrange array to make
+  //   A[i] <= A[k], i<K;
+  //   A[k] <= A[i], k<i
+  // assume index k is in [start, end]
+  // O(N) time. O(1) space
+  public static void quickSelectlocateKInAscending(int[] A, int start, int end, int k) {
+    if (k < start || k > end) return;
+    int l = start, r = end;
+    while (true) { // sure can find kth value
+      int p = arrangeInNoDescendingByMidPivotal(A, l, r);
+      if (p == k) return;
+      else if (p > k) r = p - 1;
+      else l = p + 1;
+    }
+  }
+  // select middle element as pivotal value.
+  // swap elements in index scope [from, to] to make array in no-descending order
+  // in this scope as:
+  //    elements < random pivotal value | random pivotal value | elements >= random pivotal value
+  // return the random pivotal value index to make sure the index scope of
+  // [from, returned index] has values <= A[returned index]
+  private static int arrangeInNoDescendingByMidPivotal(int[] A, int from, int to) {
+    int p = (from + to) >> 1, pv = A[p];
+    swap(A, p, to); // index `to` is for pivot value
+    int l = from; // l is for next smaller value < pivot value
+    for (int i = from; i <= to - 1; i++) if (A[i] < pv) swap(A, i, l++);
+    swap(A, l, to);
+    return l;
+  }
+
+  private static void swap(int[] nums, int l, int r) {
+    if (l != r) {
+      int t = nums[l] ^ nums[r];
+      nums[l] ^= t;
+      nums[r] ^= t;
+    }
+  }
+  /*
+
+   p: median or left median value
+   Assume array is in thus status:
+   smallers and biggers are separated by median,
+   both smallers and biggers need not to be sorted
+
+  Take [4 5 5 6] as example:
+  index 0       2(lm)
+  index     1           3
+  b: index for next bigger number, start from index 1, next is 3 (ascending)
+  s: index for smaller bigger number, start from index 2, next is 0 (descending)
+  At last, mideans number are left/separated on both sides
+  it has the same effect as merging 2 descending ordered sub array
+      [mideans, smallers]
+      [biggers, middeans]
+   */
+  public static void wiggleSortPartitionedArrayIn3ways(int[] A, int p) {
+    int b = 0; // for next Bigger
+    int i = 0;
+    int s = A.length - 1; // for next Smaller
+    while (i <= s) {
+      if (A[wi(i, A)] > p) {
+        swap(A, wi(i, A), wi(b, A)); // wiggle order
+        i++; // ascending
+        b++; // ascending
+      } else if (A[wi(i, A)] < p) {
+        swap(A, wi(i, A), wi(s, A));
+        s--; // descending
+      } else i++;
+    }
+  }
+
+  // For index     0, 1, 2, 3 of Array [4,5,5,6], Length is 4
+  // return index: 1, 3; 0, 2. odd index then even index in ascending order
+  // It is used in really processing order
+  public static int wi(int i, int[] A) {
+    return (2 * i + 1) % (A.length | 1);
+  }
 }

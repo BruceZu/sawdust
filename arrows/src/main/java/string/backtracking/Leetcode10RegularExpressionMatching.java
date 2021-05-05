@@ -15,122 +15,174 @@
 
 package string.backtracking;
 
-/**
- * <pre>
- * Difficulty: Hard
- *
- * Implement regular expression matching with support for '.' and '*'.
- *
- *   '.' Matches any single character.
- *   '*' Matches zero or more of the preceding element.
- *
- * The matching should cover the entire input string (not partial).
- *
- * Some examples:
- * isMatch("aa","a") → false
- * isMatch("aa","aa") → true
- * isMatch("aaa","aa") → false
- * isMatch("aa", "a*") → true
- * isMatch("aa", ".*") → true
- * isMatch("ab", ".*") → true
- * isMatch("aab", "c*a*b") → true
- *
- * Tags: Dynamic Programming, Backtracking, String
- * ===========================================================
- * TDD
- * s= "aa", p="a"
- * s= "a",  p="ab*"
- * s= "ab", p= ".*c"
- * s= "a",  p= "ab*"
- * s= "aa", p= "a*" or "a*aa"
- * s= "aaa",  p= "a*a"
- * s= "",     p= ".*"
- * s= "aaab", p="a*b"
- *
- *
- *   0 :  boundary checking
- *        note as * can be 0 so: when only str is over not means it is false.
- *   1 before compare current char of each other.
- *    <strong>firstly checking the next char</strong> in 'p' to see if it is exist and it is *
- *            if so:
- *               when * means 0, it means match and continue next pair checking: char after * with cur char in str.
- *               if false:
- *                  checking cur char in str is same with cur char in pattern :
- *                  if same means  * can be 1 or 2 .... and it is match for current checking
- *                                 next pair from chur after * and next char in str.
- *                  else means * can not work any more without the support from str current char, as all possible
- *                  options are checked without success result, return false and backtracking is over for current *.
- *  2  from now on it is not case of * so need plus the boundary checking for str which is opened for * case.
- *  3  else check current char is '.' || current chars are same
- *            then continue
- *          else false;
- *
- *
- * Note: bounder check
- * Follow up:
- *
- *  the given string contains '.' or '*' ?
- *  can the '*'  be used independently?
- *
- *  cache the backtracking parts
- *  DP see {@link dp.Leetcode10RegularExpressionMatching2#isMatch(String, String)}
- * @see <a href="https://leetcode.com/problems/regular-expression-matching/">leetcode</a>
- */
-
 public class Leetcode10RegularExpressionMatching {
+  /*
+  Given an input string (s) and a pattern (p),
+  implement regular expression matching with support for '.' and '*' where:
+      '.' Matches any single character.
+      '*' Matches zero or more of the preceding element.
 
-    private static boolean compare_cur_char_backtrackingStarCase(char[] str, int index, char[] ptern, final int i) {
-        // boundary checking plus
-        if (i == ptern.length && index == str.length) {
-            return true;
-        }
-        if (i == ptern.length) { // * may means 0. e.g. 'a', 'ab*'
-            return false;
-        }
+  The matching should cover the entire input string (not partial).
+  Implement regular expression matching with support for '.' and '*'.
 
-        // check cur char pair
-        char curCharInPattern = ptern[i];
-        if (i + 1 < ptern.length && ptern[i + 1] == '*') {
-            final int indexOfPostStarChar = i + 2;
-            // when * means 0 , same and continue next pair
-            if (compare_cur_char_backtrackingStarCase(str, index, ptern, indexOfPostStarChar)) {
-                return true;
-            } else {
-                // backtracking happen
-                while (index < str.length && (str[index] == curCharInPattern || curCharInPattern == '.')) {
-                    ++index;
-                    if (compare_cur_char_backtrackingStarCase(str, index, ptern, indexOfPostStarChar)) {
-                        return true;
-                    }
-                }
-                return false; // all possible options are checked
-            }
-        }
+      0 <= s.length <= 20
+      0 <= p.length <= 30
+      s contains only lowercase English letters.
+      p contains only lowercase English letters, '.', and '*'.
+   It is guaranteed for each appearance of the character '*',
+   there will be a previous valid character to match.
+   */
 
-        if (index == str.length) { // plus boundary checking.
-            return false;
-        }
+  /*
+  Idea recursion:
+    Observer:
+    ` p contains only lowercase English letters, '.', and '*'
+    current char is :
+      a char, '.', or '*'
+    need care the next one:
+      a char, '.', or '*'
+    (a). If the next one is `*`
+    then current 2 char can be
+     `a char*` : text can be cut: 0, 1, 2, ... any the  `a char` and continue compare
+              the left text with p cut `a char*`
+     .*:  text can be cut: 0, 1, 2, ... any char and continue compare
+              the left text with p cut `.*`
+     (no **) as " It is guaranteed for each appearance of the character '*',
+   there will be a previous valid character to match."
 
-        if (str[index] == curCharInPattern || curCharInPattern == '.') {//else can be saved
-            return compare_cur_char_backtrackingStarCase(str, index + 1, ptern, i + 1);
-        } else {//else can be saved
-            return false;
-        }
+      e.g. text= aaac, p=a*c
+      it is equal to:
+             aaac vs c ||
+              aac vs c ||
+               ac vs c ||
+                c vs c
+      Note it is equal to:   aaac vs c  || aac vs a*c
+      `aac vs a*c` happen until current char of text is same as the current char of pattern
+       and ends up with text does not starts with `a`.
+      e.g. text= abc, p=.*c
+      it is equal to:
+             abc vs c ||
+              bc vs c ||
+               c vs c ||
+               ""vs c
+      Note it is equal to:   abc vs c  || bc vs .*c
+      `bc vs .*c` always happen as any current char of text match  the current char of pattern which is '.'
+       and ends up with text is empty.
+    (b). If the next one is not `*`
+       current is a char: compare with current char of text
+       or current is '.' it match any current char of text
+
+
+  p: pattern,
+  s: text
+  Idea
+   1> * can not be exits independently so
+   only check curent char is . or commone small case letter
+   then check next char is * or not`
+   2> according to the definition of `.*` and `x*
+   we check them firstly before checking  curent char is . or commone small case letter
+     21>  `.*` or `x*
+        these 2 char can be ignore according to definitation
+        or if there is first char match which only apply to current char of pattern is not .
+        then we can minus the matched char of text and compared it with current x* or .*
+     22> for the common char of text and current char of pattern: common char or .
+         match then continue next substring of text and pattern
+         else return false
+     stop condition or recursion
+     till one of them become empty
+       if both are empty then return true;
+       if pattern is empty only return false
+       if pattern is empty only contiue as the current pattern can be .*
+
+  Check cases:
+    s= "",   p= "b*"
+    s= "ab", p= ".*c"
+    s= "aa", p= "a*aa"
+   without cache the O(?) time and space?
+   */
+  public boolean isMatch(String s, String p) {
+    if (s == null || p == null) return false;
+    if (p.isEmpty()) return s.isEmpty();
+
+    // p is not empty,  s? not sure
+    boolean f = !s.isEmpty() && (s.charAt(0) == p.charAt(0) || p.charAt(0) == '.');
+    if (p.length() >= 2 && p.charAt(1) == '*') {
+      return isMatch(s, p.substring(2)) || f && isMatch(s.substring(1), p);
+    } else {
+      return f && isMatch(s.substring(1), p.substring(1));
     }
+    // not reach here
+  }
 
-    public static boolean isMatch(String str, String p) {
-        if (str == null) {
-            return false;
+  // DP Top Down: add cache to isMatch()---------------------------------------
+  public boolean isMatch2(String s, String p) {
+    // use Boolean not boolean to use null value to show not set yet
+    Boolean[][] cache = new Boolean[s.length() + 1][p.length() + 1];
+    return dp(0, 0, s, p, cache);
+  }
+  // i is for text, j is for pattern
+  public boolean dp(int i, int j, String s, String p, Boolean[][] cache) {
+    if (cache[i][j] != null) return cache[i][j] == true;
+    boolean r;
+    int M = s.length(), N = p.length();
+    if (j == N) r = i == M;
+    else {
+      boolean f = (i < M && (p.charAt(j) == s.charAt(i) || p.charAt(j) == '.'));
+      if (j + 1 < N && p.charAt(j + 1) == '*')
+        r = (dp(i, j + 2, s, p, cache) || f && dp(i + 1, j, s, p, cache));
+      else r = f && dp(i + 1, j + 1, s, p, cache);
+    }
+    cache[i][j] = r;
+    return r;
+  }
+
+  // compare cur char back tracking -------------------------------------------
+  public static boolean isMatch3(String str, String p) {
+    return f(str.toCharArray(), 0, p.toCharArray(), 0);
+  }
+  // compare cur char back tracking
+  private static boolean f(char[] s, int si, char[] p, final int pi) {
+    if (pi == p.length && si == s.length) return true;
+    if (pi == p.length) return false; // e.g. 'a', 'ab*'
+
+    // pi is valid index now, check cur char pair
+    char pic = p[pi];
+    if (pi + 1 < p.length && p[pi + 1] == '*') {
+      if (f(s, si, p, pi + 2)) return true;
+      else {
+        while (si < s.length && (s[si] == pic || pic == '.')) {
+          ++si;
+          if (f(s, si, p, pi + 2)) return true;
         }
-        //       performance improve only
-//        if (str.equals(p) || p == ".*") {
-//            return true;
-//        }
-        return compare_cur_char_backtrackingStarCase(str.toCharArray(), 0, p.toCharArray(), 0);
+        return false;
+      }
     }
+    // only when pattern is not .* or x*
+    // can check si index is s.length or not .e.g. text=a, pattern=ab*
+    if (si == s.length) return false;
+    // si is valid index now
+    if (s[si] == pic || pic == '.') // else can be saved
+    return f(s, si + 1, p, pi + 1);
+    else return false;
+  }
 
-    public static void main(String[] args) {
-        System.out.println(isMatch("aa", "a*"));
-        System.out.println(isMatch("aaab", "a*b"));
+  // DP bottom up------------------------------------------------------------------------
+  // O(MN) time and space, M ans N is length of text and pattern
+  public boolean isMatch4(String S, String P) {
+    int M = S.length(), N = P.length();
+    boolean[][] dp = new boolean[M + 1][N + 1];
+    dp[M][N] = true; // initial value, handle from backend to front end, decided by .* or x*
+
+    for (int s = M; s >= 0; s--) { // empty text vs .* or x*
+      for (int p = N - 1; p >= 0; p--) {
+        boolean f = (s < M && (P.charAt(p) == S.charAt(s) || P.charAt(p) == '.'));
+        if (p <= N - 2 && P.charAt(p + 1) == '*') {
+          dp[s][p] = dp[s][p + 2] || f && dp[s + 1][p];
+        } else {
+          dp[s][p] = f && dp[s + 1][p + 1];
+        }
+      }
     }
+    return dp[0][0];
+  }
 }

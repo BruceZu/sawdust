@@ -81,7 +81,7 @@ public class WinggleSortTest extends TestCase {
     public void winggleSortTest() {
         int[] ar = toInt(Arrays.copyOf(arr, arr.length));
         // start test
-        Leetcode324WiggleSortII2.wiggleSort(ar);
+        Leetcode324WiggleSortII.wiggleSort(ar);
         int[] sortedNow = toInt(sorted);
         Assert.assertTrue(Arrays.equals(sortedNow, ar));
     }
