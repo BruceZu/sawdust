@@ -15,52 +15,32 @@
 
 package dp;
 
-/**
- * <pre>
- *     121. Best Time to Buy and Sell Stock  Q
- * Difficulty: Easy
- * Say you have an array for which the ith element is the price of a given stock on day i.
- *
- * If you were only permitted to complete <strong>at most one transaction</strong>
- * (ie, buy one and sell one share of the stock),
- *
- * design an algorithm to find the maximum profit.
- *
- * Example 1:
- * Input: [7, 1, 5, 3, 6, 4]
- * Output: 5
- *
- * max. difference = 6-1 = 5 (not 7-1 = 6, as selling price needs to be larger than buying price)
- * Example 2:
- * Input: [7, 6, 4, 3, 1]
- * Output: 0
- *
- * In this case, no transaction is done, i.e. max profit = 0.
- * Subscribe to see which companies asked this question
- *
- * Tags
- *      Array
- *      Dynamic Programming
- * Similar Problems
- *      (M) Maximum Subarray
- *      (M) Best Time to Buy and Sell Stock II
- *      (H) Best Time to Buy and Sell Stock III
- *      (H) Best Time to Buy and Sell Stock IV
- *      (M) Best Time to Buy and Sell Stock with Cooldown
- *
- *  see Kadane's Algorithm: {@link KadaneAlgorithmMaxSubArray Kadane's Algorithm}
- *
- *  @see <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/">leetcode</a>
+/*
+121. Best Time to Buy and Sell Stock
+You are given an array prices where p is
+the price of a given stock on the ith day.
+
+You want to maximize your profit by choosing
+a single day to buy one stock and choosing a
+different day in the future to sell that stock.
+
+Return the maximum profit you can achieve from
+this transaction. If you cannot achieve any profit,
+return 0.
+*/
+/*
+Idea:
+which is the bottom point to buy in?
+once find the bottom point it is easy to get max profit by comparing diff/profit
  */
 public class Leetcode121BestTimetoBuyandSellStock {
-    public int maxProfit(int[] prices) {
-        int maxCur = 0, maxSoFar = 0;
-        int iv; //  incame of 1 stock: yesterday buy, and today sell.
-        for (int i = 1; i < prices.length; i++) {
-            iv = prices[i] - prices[i - 1];
-            maxCur = (0 > maxCur ? 0 : maxCur) + iv;
-            maxSoFar = maxCur > maxSoFar ? maxCur : maxSoFar;
-        }
-        return maxSoFar;
+  public int maxProfit2(int prices[]) {
+    int min = Integer.MAX_VALUE;
+    int r = 0;
+    for (int p : prices) {
+      if (p < min) min = p;
+      else if (p - min > r) r = p - min;
     }
+    return r;
+  }
 }
