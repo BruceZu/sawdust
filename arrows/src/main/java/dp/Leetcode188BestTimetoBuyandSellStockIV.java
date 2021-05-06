@@ -15,136 +15,127 @@
 
 package dp;
 
-/**
- * <pre>
- *     188. Best Time to Buy and Sell Stock IV
- * Difficulty: Hard
- * Say you have an array for which the ith element is the price of a given stock on day i.
- *
- * Design an algorithm to find the maximum profit. You may complete
- * <strong> at most k</strong> transactions.
- *
- * Note:
- * You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
- *
- *
- * Tags Dynamic Programming
- * Similar Problems
- * (E) Best Time to Buy and Sell Stock
- * (M) Best Time to Buy and Sell Stock II
- * (H) Best Time to Buy and Sell Stock III
- * =====================================================================================
- * <pre>
- *     max profit:
- *
- *     day            0  1  2  3  4  5  6  7
- *
- *     price          2  5  7  1  4  3  1  3
- *     transaction
- *       0            0  0  0  0  0  0  0  0     // no transaction no profit
- *       1            0  3  5  5  5  5  5  5
- *       2            0  3  5  5  8
- *       3            0
- *       ...
- *
- *                profit of any times transaction on the first day is 0, as only have one day.
- *
- *
- * Easier to understand.
- * Time complexity is O(k * number of days ^ 2)
- *
- * T[t][d] = max(T[t][d-1],
- *               max(prices[d] - prices[pre] + T[t-1][pre]) // where pre is 0...d-1
- *               )
- *
- *  =====>
- * O(K * number of days)
- *  Formula is
- *   maxDiff = Math.max(maxDiff, T[t - 1][d-1] - prices[d-1]);
- *   T[t][d] = Math.max(T[t][d - 1], prices[d] + maxDiff);
- *
- *  or
- *   T[t][d] = Math.max(T[t][d - 1], prices[d] + maxDiff);
- *   maxDiff = Math.max(maxDiff, T[t - 1][d] - prices[d]);  // used for next turn
- *
- *  =====>
- *   one dimension array
- *
- * @see <a href="https://www.youtube.com/watch?v=oDhu5uGq_ic">youtube, idea of Tushar Roy</a>
- */
+import java.util.Arrays;
+
 public class Leetcode188BestTimetoBuyandSellStockIV {
-    // same as Leetcode122BestTimetoBuyandSellStockII
-    private static int greedy(int[] prices) {
-        int r = 0;
-        for (int i = 1; i < prices.length; i++) {
-            if (prices[i] > prices[i - 1]) {
-                r += prices[i] - prices[i - 1];
-            }
-        }
-        return r;
+  /*
+  an array for which the ith element is the price of a given stock on day i.
+  find the maximum profit. You may complete
+  at most k transactions.
+  you must sell the stock before you buy again.
+   */
+
+  /*
+   Idea: state machine.
+     when K is bigger enough the answer is profit got by no times limitation transactions
+     any times of transaction on the first day will get profit 0, as only one price
+     the price diff is 0.
+
+     candidate-cost[k]: the cost value for the candidate kth transaction which is
+        assumed to be done by selling with today price
+        It is a minimum value selected from
+        0th price - 0                              ( happened on price[0] on 0th day)
+        1th price - profit of previous transaction ( happened on price[1] on 1th day)
+        2th price - profit of previous transaction ( happened on price[2] on 2th day)
+        ...
+        today price - profit of previous transaction ( happened on price[today] on today day)
+        it = min{it, current price minus cumulated profit after previous transaction, kept in
+        max-profit[k-1]}
+        The cost value may not happen( by buy action) on today
+        and it is affected by the previous 0~k-1 transaction.
+        initial value is MAX. for each transaction in -1 day the candidate-cost[k], which is a min value,
+        is MAX,
+
+     max-profit[k]: profit value in hand after kth transaction's sell action which may
+        happen on a day before today.
+        it is a max value, selected from
+        it == max{it, current price - cost[k]}.
+        The sell action of the kth transaction with max profit may not happen
+        today and in that case it has been calculated and kept in max-profixi].
+        if the sell action of the ith transaction with max profit happens
+        today, it depends on the just calculated cost[k].
+
+        max-profit[k] is also the profit after all 0-k transactions
+        initial value is 0
+        max-profit[k-1]: when the 0th transaction buy action happen the
+                 cost will be today price - max-profit[k-1] which is 0.
+                 -1 out of 0 based index.
+       when current is the 1th transaction. the profit at hand is 0;
+       initialized with 0 which is the cumulated profit got after -1
+       transaction
+
+    candidate-cost[k] in i days depends on
+       - left:  candidate-cost[k] in i-1 days
+       - above: max-profit[k-1] in i days
+    max-profit[k] in i days depends on
+       - left:  max-profit[k] in i-1 days
+       - above: candidate-cost[k] in i days
+
+
+  Notice: the order it make sure
+       "at most k transactions. you must sell the stock before you buy again."
+
+   O(N*K) time and O(K) space
+  */
+  public static int maxProfit(int K, int[] prices) {
+    if (K == 0 || prices == null || prices.length <= 1) return 0;
+    int[] c = new int[K]; // candidate-cost
+    Arrays.fill(c, Integer.MAX_VALUE);
+
+    int[] pro = new int[K];
+    for (int p : prices) {
+      for (int k = 0; k < K; k++) {
+        c[k] = Math.min(c[k], p - (k == 0 ? 0 : pro[k - 1]));
+        pro[k] = Math.max(pro[k], p - c[k]);
+      }
     }
+    return pro[K - 1];
+  }
+  /*
+  The logic is same as above
+            -1    day 0,    ...,      c-1,          c,           ..., N-1
+   tx 1
+   tx 2
+   tx 3
+   ...       0   p(r-1)(0), ...,      p(r-1)(c-1)    p(r-1)(c)
+   tx r                               p(r)  (c-1)    p(r)  (c)
+   ...
+   tx k
 
-    //Idea  Easier to understand
-    public static int maxProfitSlowSolution(int prices[], int k) {
-        if (k == 0 || prices.length == 0) {
-            return 0;
-        }
-        if (k > prices.length / 2) {
-            return greedy(prices);
-        }
-        int T[][] = new int[k + 1][prices.length];
+   current the max profit `p(r)` after r transaction in first c days depends on
+         - the max profit after r transaction in first c-1 days `p(r)(c-1)`
+         - the cost of one of the rth transaction which happens in first
+           c days, the one here is the one happens today or sold with
+           today's price. The cost is the minimum value:
+             price(c day)   - p(r-1)(c)
+             price(c-1 day) - p(r-1)(c-1)
+             ...
+             price(1 day)   - p(r-1)(0)
+             price(0 day)   - 0
+   It shows:
+       - if calculate  max profit(r)(c) column by column and use another array to keep min cost
+         for the one of the ith transaction, the one that sell with today's price.
+         then only need 1 dimension array p(r) for current c day.
+         So the space is O(K)
+       - if calculate max profit(r)(c) row by row then need, and we keep the above `min cost`
+         only in a variable to also use 1 dimension array to keep p(c) for current
+         transaction. it is used in this method
+         So the space is O(N)
+  */
 
-        for (int t = 1; t <= k; t++) {
-            for (int d = 1; d < prices.length; d++) {
-                int maxVal = 0;
-                for (int pre = 0; pre < d; pre++) {
-                    maxVal = Math.max(maxVal, prices[d] - prices[pre] + T[t - 1][pre]);
-                }
-                T[t][d] = Math.max(T[t][d - 1], maxVal);
-            }
-        }
+  public static int maxProfit2(int K, int[] prices) {
+    if (K == 0 || prices == null || prices.length <= 1) return 0;
+    int N = prices.length;
+    int pro[] = new int[N]; // pro[i] max profit got after current k transaction in i days
 
-        return T[k][prices.length - 1];
+    for (int k = 0; k < K; k++) {
+      int c = Integer.MAX_VALUE; // candidate-cost
+      for (int i = 0; i < N; i++) {
+        int p = prices[i];
+        c = Math.min(c, p - (k == 0 ? 0 : pro[i]));
+        pro[i] = Math.max(i == 0 ? 0 : pro[i - 1], p - c);
+      }
     }
-
-    // improve to O(K * number of days)
-    public static int maxProfit(int k, int[] prices) {
-        if (k == 0 || prices.length == 0) {
-            return 0;
-        }
-        if (k > prices.length / 2) {
-            return greedy(prices);
-        }
-        int T[][] = new int[k + 1][prices.length];
-
-        for (int t = 1; t < T.length; t++) {
-            int maxDiff = 0 - prices[0];
-            for (int d = 1; d < prices.length; d++) {
-                T[t][d] = Math.max(T[t][d - 1], prices[d] + maxDiff);
-                maxDiff = Math.max(maxDiff, T[t - 1][d] - prices[d]);
-            }
-        }
-        return T[k][prices.length - 1];
-    }
-
-    // improved, using one dimension array
-    public static int maxProfitOneDimensionArray(int[] prices, int k) {
-        if (k == 0 || prices.length == 0) {
-            return 0;
-        }
-        if (k > prices.length / 2) {
-            return greedy(prices);
-        }
-        int T[] = new int[prices.length];
-
-        for (int t = 1; t < T.length; t++) {
-            int maxDiff = 0 - prices[0];
-            for (int d = 1; d < prices.length; d++) {
-                int newTd = Math.max(T[d - 1], prices[d] + maxDiff);
-                maxDiff = Math.max(maxDiff, T[d] - prices[d]);
-                T[d] = newTd;
-            }
-        }
-        return T[prices.length - 1];
-    }
-};
+    return pro[N - 1];
+  }
+}
