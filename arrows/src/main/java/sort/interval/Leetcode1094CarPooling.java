@@ -13,9 +13,7 @@
 // limitations under the License.
 //
 
-package sort;
-
-import java.util.Arrays;
+package sort.interval;
 
 public class Leetcode1094CarPooling {
 
@@ -29,7 +27,7 @@ public class Leetcode1094CarPooling {
         1 <= capacity <= 100000
     */
 
-    int[] t = new int[1001]; // deafult 0
+    int[] t = new int[1001]; // default 0
     // O(N) N is trips length
     for (int[] trip : trips) {
       t[trip[1]] += trip[0];
@@ -44,15 +42,4 @@ public class Leetcode1094CarPooling {
     }
     return true;
   }
-
-  // another way is to sort the start time and end time in 2 arrays attached with num_passengers
-  // int[][] getin
-  // int[][] getDown.
-  // sort by time
-  // then process both sorted arrays:
-  // if it is getin, requiredSeats += getin[1]
-  // else it is getDown, requiredSeats -= getin[1]
-  // if requiredSeats> capacity return false
-  // at last return true
-  // this is O(NlogN) Time
 }

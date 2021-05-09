@@ -72,8 +72,11 @@ public class Leetcode188BestTimetoBuyandSellStockIV {
        - above: candidate-cost[k] in i days
 
 
-  Notice: the order it make sure
-       "at most k transactions. you must sell the stock before you buy again."
+  Notice:
+  - the inner loop order it make sure
+       " you must sell the stock before you buy again."
+  - the inner loop times to make sure providing K chance to make sure
+       "at most k transactions."
 
    O(N*K) time and O(K) space
   */
