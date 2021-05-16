@@ -35,8 +35,10 @@ public class Leetcode134GasStation {
     */
   public int canCompleteCircuit(int[] gas, int[] cost) {
     int N = gas.length;
-    int all = 0; // total tank oil
-    int cur = 0; // current tank oil
+    int all = 0; // total tank oil, used to check whether it is possible
+    // to run the circle by the balance value of provided gas and cost of gas
+    // of the total circle.
+    int cur = 0; // current tank oil. it is used to select start station
     int start = 0; // starting_station
     for (int i = 0; i < N; ++i) {
       all += gas[i] - cost[i];

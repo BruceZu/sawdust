@@ -30,15 +30,26 @@ public class Leetcode986IntervalListIntersections {
     end_i < start_i+1
     0 <= start_j < end_j <= 10^9
     end_j < start_j+1
+    A closed interval [a, b] (with a < b) denotes the
+    set of real numbers x with a <= x <= b.
+    The intersection of two closed intervals is a set of
+    real numbers that are either empty or represented as a
+    closed interval. For example, the intersection of [1, 3] and [2, 4] is [2, 3].
+
+    Each list of intervals is pairwise disjoint and in sorted order.
+    Return the intersection of these two interval lists.
+    Idea:
+
+    O(min{M,N}) M and N is the length of firstList  and secondList
     */
 
-    int i = 0, j = 0;
+    int i = 0, j = 0; // is is index of s; j is index of f
     List<int[]> l = new ArrayList<>();
     while (i < firstList.length && j < secondList.length) {
       int[] f = firstList[i];
       int[] s = secondList[j];
       // Each list of intervals is pairwise disjoint and in sorted order.
-      // So they way to know if there is Intersection is:
+      // So the way to know if there is Intersection is:
       int maxl = Math.max(s[0], f[0]), minr = Math.min(s[1], f[1]);
       if (maxl <= minr) {
         l.add(new int[] {maxl, minr});

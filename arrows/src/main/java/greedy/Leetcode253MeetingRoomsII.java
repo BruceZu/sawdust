@@ -16,90 +16,98 @@
 package greedy;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
-/**
- * <pre>
- * 253. Meeting Rooms II
- *
- * Difficulty: Medium
- * Given an array of meeting time intervals consisting of start and end times
- *
- *              [[s1,e1],[s2,e2],...] (si < ei),
- *
- * find the minimum number of conference rooms required.
- *
- * For example,
- * Given [[0, 30],[5, 10],[15, 20]],
- * return 2.
- * Company Tags:  Google Facebook
- * Tags: Heap, Greedy, Sort
- * Similar Problems
- *      (H) Merge Intervals
- *      (E) Meeting Rooms
- * ==============================================================================
- *     1 given a meeting room, ask the max meetings. meeting with shorter time has high priority.
- *         sort meetings by finish time. 'sorted'  // O(nlogn)
- *         cur_class_finishTime = sorted[0].finish time
- *         int meetings =1;
- *         loop 'sorted' from sorted[1]:
- *            if cur_class_finishTime < i start time (available)
- *                  meetings++;
- *                  cur_finishTime = i finish time
- *         return meetings
- *
- *     2 given meetings, ask required min meeting rooms
- *
- *        sort meetings by start time in a array or list, 'sorted'   // O(nlogn)
- *        heap (PriorityQueue): 'roomsFinishedFirstlyOnHead'
- *                              keep meeting room and finish time of the last meeting there, add sorted[0] in to
- *                              roomsFinishedFirstlyOnHead.
- *        loop sorted from sorted[1]:
- *             if head of roomsFinishedFirstlyOnHead's finish time < i meeting start time
- *                room enough, take it:
- *                      pop the head of roomsFinishedFirstlyOnHead, // care!!
- *                      add the i into roomsFinishedFirstlyOnHead again ( for sort)
- *             else:
- *                need add a meeting room: add i in roomsFinishedFirstlyOnHead.
- *        return the number of roomsFinishedFirstlyOnHead.
- *
- * @see <a href ="https://leetcode.com/problems/meeting-rooms-ii/">leetcode</a>
- * <br><a href ="https://en.wikipedia.org/wiki/Sweep_line_algorithm">Sweep_line_algorithm</a>
- */
 public class Leetcode253MeetingRoomsII {
-    class Interval {
-        int start;
-        int end;
+  /*
+  Use a min heap: to keep end time used to judge if
+  there is free room compared with current meeting start time
+  Min heap:
+     1. top's time is the one which can finished earlier than any other meeting,
+     thus provide free room.
+     2. size is the room number
+  O(NlogN) time and O(N）space
+  */
+  public int minMeetingRooms(int[][] A) {
+    if (A == null || A.length == 0) return 0;
+    Arrays.sort(A, Comparator.comparingInt(a -> a[0])); // Sort by start time
+    PriorityQueue<Integer> q = new PriorityQueue<>(A.length, Comparator.comparingInt(a -> a));
+    q.add(A[0][1]);
+    for (int i = 1; i < A.length; i++) {
+      if (q.peek() <= A[i][0]) q.poll();
+      q.add(A[i][1]); // overlap: no free room available, then need allocate a room
+    }
+    return q.size();
+  }
+  // Alternative ------------------------------------------------------------
+  //  O(NlogN) time and O(N）space
+  /*
+    Input: intervals = [[0,30],[5,10],[15,20]]
+    Output: 2                10  20  30
+                        0  5   15
+    Input: intervals = [[7,10],[2,4]]
+    Output: 1            4   10
+                      2    7
+  */
+  public int minMeetingRooms2(int[][] A) {
+    if (A == null || A.length == 0) return 0;
+    int[] s = new int[A.length];
+    int[] e = new int[A.length];
+    for (int i = 0; i < A.length; i++) {
+      s[i] = A[i][0];
+      e[i] = A[i][1];
+    }
+    Arrays.sort(e);
+    Arrays.sort(s);
+    int i = 0, j = 0, r = 0;
+    while (i < A.length) {
+      if (e[j] <= s[i]) j++; // there is a free room
+      else r++;
+      i += 1;
     }
 
-    /**
-     * <pre>
-     *  sort meetings by start time and end time.
-     *  as any meeting must be satisfied, loop the sorted class by start time:
-     *  if current meeting need start before the time when the first empty classroom can be got.
-     *  (among all the going on classes, the end time of the one which stops early that others)
-     *      provide another meeting room,
-     *  else
-     *      just use empty room.
-     *      and update 'time to get an empty class room' to be the next one, as they are sorted.
-     */
-    public int minMeetingRooms(Interval[] meetings) {
-        int[] sortedStarts = new int[meetings.length];
-        int[] sortedEnds = new int[meetings.length];
-        for (int i = 0; i < meetings.length; i++) {
-            sortedStarts[i] = meetings[i].start;
-            sortedEnds[i] = meetings[i].end;
-        }
-        Arrays.sort(sortedStarts);
-        Arrays.sort(sortedEnds);
-        int roomNumber = 0;
-        int j = 0; //index of class with current earliest end time
-        for (int i = 0; i < sortedStarts.length; i++) {
-            if (sortedStarts[i] < sortedEnds[j]) {
-                roomNumber++;
-            } else {
-                j++;
-            }
-        }
-        return roomNumber;
+    return r;
+  }
+  // Alternative ------------------------------------------------------------
+  // O(M) M is the max value of end
+  public static int minMeetingRooms3(int[][] A) {
+    int l = 0;
+    for (int[] i : A) l = Math.max(l, i[1]);
+
+    int[] t = new int[l + 1];
+    for (int[] i : A) {
+      t[i[0]]++;
+      t[i[1]]--;
     }
+    int max = 0;
+    int s = 0;
+    for (int i : t) {
+      s += i;
+      max = Math.max(max, s);
+    }
+    return max;
+  }
+
+  /* --------------------------------------------------------------------------
+   Question: one room, calculate the max meetings it can hold
+   Idea: sort the meetings with end time
+         always select the meeting which finished firstly than any other
+         once it is selected then any meeting whose start time is < the end
+         time of selected meeting will can not be arranged.
+
+   O(NlogN) time, O(1) extra space
+  */
+  public static int maxMeetings(int[][] A) {
+    Arrays.sort(A, Comparator.comparingInt(a -> a[1]));
+    int e = A[0][1];
+    int r = 1;
+    for (int i = 1; i < A.length; i++) {
+      if (e < A[i][0]) {
+        r++;
+        e = A[i][1];
+      }
+    }
+    return r;
+  }
 }
