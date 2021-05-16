@@ -48,7 +48,7 @@ Import it by Intellij IDEA 2016.3 and start enjoy coding
 
 Leetcode
 ```
-$ find . -name LC*.java -o -name  Leetcode*[a-zA-Z1].java | grep -v Test.java |wc -l
+$ find . -name LC*.java -o -name Leetcode*[a-zA-Z].java | awk -F "/" '{print($NF)}' | sort|uniq |wc -l
 ```
 Welcome ideas, comments and commits.
 

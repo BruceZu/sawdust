@@ -15,7 +15,7 @@
 
 package math;
 
-public class Leetcodewori {
+public class Leetcode1808MaximizeNumberofNiceDivisors {
   // Refer https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
   // Assume:
   // - (modulus - 1) * (modulus - 1) does not overflow long.MAX_VALUE
@@ -26,7 +26,7 @@ public class Leetcodewori {
   // m: 0 < modulus
   long modpow(long b, int e, int m) {
     if (m == 1) return 0;
-    if(e==0||b==1) return 1;
+    if (e == 0 || b == 1) return 1;
 
     b %= m;
 
