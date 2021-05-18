@@ -77,15 +77,17 @@ public class Leetcode774MinimizeMaxDistancetoGasStation {
              for any interval of 2 adjacent existing gas stations,
              when n == K happen for the first time the last distance value
              is a bigger one that the one which firstly make n == K happen.
-             at that time if use l=mid, then the following distance value will
-             be bigger the current one again as before. but at the time
-             when n == K happens for the first time, even the value of n
+             at that time if use l=mid, then with this rule the following distance value
+             will be bigger than the current one again as before and at last reach an extreme
+             where still can allowing to add n==K but the fraction is nearly 0.
+             at the time when n == K happens for the first time, even the value of n
              is expected but the distance value may be not the one which can
              evenly allocate the new gas stations. in this case still need tuning
              it to be smaller in next step without increasing the number of n
              because the required distance is the one who will make smallest possible
              value of penalty(). for this reason use r=mid.
-             E.g. stations=[0,1] ,K=1.
+             E.g. stations=[0,1] ,K=1. with the l=mid rule then the distance will eventually
+             reach to 0.9999.. still keeping n==1. but not evenly allocated.
 
     'Answers within 10^-6 of the actual answer will be accepted.'
      means: the search space shrink to where any 2 value's diff is < 10^-6

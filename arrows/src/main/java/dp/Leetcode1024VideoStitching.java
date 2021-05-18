@@ -33,10 +33,8 @@ public class Leetcode1024VideoStitching {
     Arrays.sort(A, (a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
     if (T == 0) return 0; // Understand it as minimum number of clips is 0 for T=0, or [0,0]
     if (0 < A[0][0]) return -1;
-    int a = 0,
-        p = 0,
-        r = -1,
-        i = 0; // a: result; p: previous right point, r: right most point reached by far
+    // a: result; p: previous right point, r: right most point reached by far
+    int a = 0, p = 0, r = -1, i = 0;
     while (true) {
       while (i < N && A[i][0] <= p) {
         r = Math.max(r, A[i][1]);
@@ -58,10 +56,8 @@ public class Leetcode1024VideoStitching {
     // all intervals with same start time are represented by the longest one
     for (int[] i : clips) v[i[0]] = Math.max(v[i[0]], i[1]);
     if (T == 0) return 0;
-    int i = 0,
-        a = 0,
-        p = 0,
-        r = -1; // a: result; p: previous right point, r: right most point reached by far
+    // a: result; p: previous right point, r: right most point reached by far
+    int i = 0, a = 0, p = 0, r = -1;
     // O(T)
     while (true) {
       while (i <= T && i <= p) {

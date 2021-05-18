@@ -48,6 +48,9 @@ public class Leetcode1124LongestWellPerformingInterval {
         r = i + 1;
       } else {
         m.putIfAbsent(s, i); // keep the left most one, or the first presum with the same value.
+        //  not check s-2?  s is negative,  if s-2 exists sure it will be right of s-1, and compared
+        // with s-1
+        // the s-2 can not provide longer distance
         if (m.containsKey(s - 1)) r = Math.max(r, i - m.get(s - 1));
       }
     }
@@ -58,7 +61,7 @@ public class Leetcode1124LongestWellPerformingInterval {
    with a strictly monotone decreasing stack to keep index of pre sum;
    pre sum sum[0] is 0 and be push firstly in the stack, others pushed in is negative number
    draw a picture to see what it is
-   Actually the` p[i] - p[s.peek()] >= 1` only valid when `i > statck.peek()`
+   Actually the` p[i] - p[s.peek()] >= 1` only valid when `i > stack.peek()`
    else `i - s.peek()` is negative
    and will be ignore by   `r = Math.max(r, i - s.peek())`
 

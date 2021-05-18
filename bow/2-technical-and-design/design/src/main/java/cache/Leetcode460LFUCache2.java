@@ -19,132 +19,124 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 public class Leetcode460LFUCache2 {
-    static class LFUCache {
-        static class FreNode {
-            public int freq = 0;
-            public LinkedHashSet<Integer> keysSet = null;
+  // compared with Leetcode460LFUCache.java: use LinkedHashSet to keep LRU in frequency node
+  static class LFU {
+    // frequency node
+    static class Fode {
+      public int freq = 0;
+      public LinkedHashSet<Integer> keysSet = null; // LRU
 
-            public FreNode prev = null, next = null;
+      public Fode prev = null, next = null;
 
-            public FreNode(int freq, FreNode prev, FreNode next) {
-                this.freq = freq;
-                keysSet = new LinkedHashSet();
+      public Fode(int freq, Fode prev, Fode next) {
+        this.freq = freq;
+        keysSet = new LinkedHashSet();
 
-                this.prev = prev;
-                this.next = next;
+        this.prev = prev;
+        this.next = next;
 
-                prev.next = this;
-                next.prev = this;
-            }
+        prev.next = this;
+        next.prev = this;
+      }
 
-            private FreNode() { // for sentinel only
-                this.freq = -1;
-            }
-        }
-
-        private FreNode centinelSmallerSide;
-        private FreNode centinelBiggerSide;
-        private int capacity;
-
-        private HashMap<Integer, Integer> keyToValue = null;
-        private HashMap<Integer, FreNode> keyToFreNode = null;
-
-        private void unlink(FreNode node) {
-            FreNode pre = node.prev;
-            FreNode next = node.next;
-
-            pre.next = next;
-            next.prev = pre;
-
-            node.prev = node.next = null;
-        }
-
-        private void increaseFreFor(int key) {
-            FreNode freqNode = keyToFreNode.get(key);
-            if (freqNode.next.freq != freqNode.freq + 1) {
-                new FreNode(freqNode.freq + 1, freqNode, freqNode.next);
-            }
-
-            freqNode.keysSet.remove(key);
-            freqNode.next.keysSet.add(key);
-
-            keyToFreNode.put(key, freqNode.next);
-
-            if (freqNode.keysSet.isEmpty()) {
-                unlink(freqNode);
-            }
-        }
-
-        public LFUCache(int capacity) {
-            this.capacity = capacity;
-
-            keyToFreNode = new HashMap();
-            centinelSmallerSide = new FreNode();
-            centinelBiggerSide = new FreNode();
-            centinelSmallerSide.next = centinelBiggerSide;
-            centinelBiggerSide.prev = centinelSmallerSide;
-
-            keyToValue = new HashMap();
-        }
-
-        public int get(int key) {
-            Integer v = keyToValue.get(key);
-            if (v != null) {
-                increaseFreFor(key);
-                return v;
-            }
-            return -1;
-        }
-
-        // remove the least recent one of lest frequency
-        // after remove if the preNode's list is empty, unlink this preNode
-        private void removeLeastRecentOfLestFrequencyAndUpdateFreqList() {
-            int beRemovedKey = 0;
-            for (int key : centinelSmallerSide.next.keysSet) {
-                beRemovedKey = key;
-                break;
-            }
-
-            centinelSmallerSide.next.keysSet.remove(beRemovedKey);
-            keyToValue.remove(beRemovedKey);
-            keyToFreNode.remove(beRemovedKey);
-
-            if (centinelSmallerSide.next.keysSet.isEmpty()) {
-                unlink(centinelSmallerSide.next);
-            }
-        }
-
-        // insert new key-value to preNode with freq=0
-        // if the preNode does not exist, create it.
-        private void insertToZeroFreqNode(int key, int value) {
-            if (centinelSmallerSide.next.freq != 0) {
-                new FreNode(0, centinelSmallerSide, centinelSmallerSide.next);
-            }
-            centinelSmallerSide.next.keysSet.add(key);
-            keyToFreNode.put(key, centinelSmallerSide.next);
-            keyToValue.put(key, value);
-        }
-
-        public void put(int key, int value) {
-
-            if (capacity == 0) {
-                return;
-            }
-            Integer oldV = keyToValue.get(key);
-            // update
-            if (oldV != null) {
-                keyToValue.put(key, value);
-                increaseFreFor(key);
-                return;
-            }
-
-            // add
-            //    full then delete one firstly
-            if (keyToValue.size() == this.capacity) {
-                removeLeastRecentOfLestFrequencyAndUpdateFreqList();
-            }
-            // add to freNode with frequency =0;
-            insertToZeroFreqNode(key, value);
-        }
+      private Fode() { // for sentinel only
+        this.freq = -1;
+      }
     }
+
+    private Fode s; // centinel Smaller Side
+    private Fode b;
+    private int capacity;
+
+    private HashMap<Integer, Integer> kv = null; // key to value
+    private HashMap<Integer, Fode> kf = null; // key to frequency node
+
+    private void unlink(Fode node) {
+      Fode p = node.prev;
+      Fode n = node.next;
+
+      p.next = n;
+      n.prev = p;
+
+      node.prev = node.next = null;
+    }
+
+    private void increaseFrequency(int k) {
+      Fode f = kf.get(k);
+      if (f.next.freq != f.freq + 1) {
+        new Fode(f.freq + 1, f, f.next);
+      }
+
+      f.keysSet.remove(k);
+      f.next.keysSet.add(k);
+
+      kf.put(k, f.next);
+
+      if (f.keysSet.isEmpty()) unlink(f);
+    }
+
+    // remove the least recent one of lest frequency
+    // and update freqList:
+    // after remove if the preNode's list is empty, unlink this preNode
+    private void removeOne() {
+      int k = 0;
+      for (int key : s.next.keysSet) {
+        k = key; // first one is the one to be removed key O(1)
+        break;
+      }
+
+      s.next.keysSet.remove(k);
+      kv.remove(k);
+      kf.remove(k);
+
+      if (s.next.keysSet.isEmpty()) unlink(s.next);
+    }
+
+    // insert new key-value to preNode with freq=0
+    // if the preNode does not exist, create it.
+    private void insertNewKV(int k, int v) {
+      if (s.next.freq != 0) {
+        new Fode(0, s, s.next);
+      }
+      s.next.keysSet.add(k);
+      kf.put(k, s.next);
+      kv.put(k, v);
+    }
+
+    public LFU(int capacity) {
+      this.capacity = capacity;
+
+      kf = new HashMap();
+      s = new Fode();
+      b = new Fode();
+      s.next = b;
+      b.prev = s;
+
+      kv = new HashMap();
+    }
+
+    public int get(int key) {
+      Integer v = kv.get(key);
+      if (v != null) {
+        increaseFrequency(key);
+        return v;
+      }
+      return -1;
+    }
+
+    public void put(int k, int v) {
+      if (capacity == 0) return;
+      Integer o = kv.get(k);
+      // update
+      if (o != null) {
+        kv.put(k, v);
+        increaseFrequency(k);
+        return;
+      }
+      // add
+      if (kv.size() == this.capacity) removeOne();
+      // add to freNode with frequency =0;
+      insertNewKV(k, v);
+    }
+  }
 }
