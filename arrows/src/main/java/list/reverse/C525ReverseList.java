@@ -22,40 +22,25 @@ import list.ListNode;
 
 public class C525ReverseList {
 
-    private static ListNode reverse(ListNode pre, ListNode cur) {
-        if (cur == null) {
-            return pre;
-        }
-        ListNode next = cur.next;
-        cur.next = pre;
-        pre = cur;
-        cur = next;
-        return reverse(pre, cur);
+  private static ListNode reverse(ListNode pre, ListNode cur) {
+    if (cur == null) {
+      return pre;
     }
+    ListNode next = cur.next;
+    cur.next = pre;
+    pre = cur;
+    cur = next;
+    return reverse(pre, cur);
+  }
 
-    public static ListNode reverse(ListNode head) {
-        if (head == null) {
-            return head;
-        }
-
-        ListNode next = head.next;
-        head.next = null;
-        return reverse(head, next);
+  public ListNode reverseList(ListNode head) {
+    ListNode p = null, cur = head;
+    while (cur != null) {
+      ListNode n = cur.next;
+      cur.next = p;
+      p = cur;
+      cur = n;
     }
-
-    public static ListNode reverse2(ListNode head) {
-        if (head == null) {
-            return head;
-        }
-
-        ListNode cur = head.next;
-        head.next = null;
-        while (cur != null) {
-            ListNode next = cur.next;
-            cur.next = head;
-            head = cur;
-            cur = next;
-        }
-        return head;
-    }
+    return p;
+  }
 }
