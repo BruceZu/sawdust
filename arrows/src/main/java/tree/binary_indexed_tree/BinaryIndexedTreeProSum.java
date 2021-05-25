@@ -69,7 +69,7 @@ import java.util.Arrays;
       kept in BIT:  BIT[0b1000]     BIT[0b1100]  BIT[0b1101]
       0b1101 is the first; next x=x-x&(x-1); till x==0;
       runtime O(1ogn)
-
+      This is using a left binomial tree
      <img src="../../../resources/BIT_sum13.png" height="400" width="600">
      <img src="../../../resources/BIT_sum7.png" height="400" width="600">
     3 The hard part is how to convert a given flat array to its BIT
@@ -101,7 +101,7 @@ import java.util.Arrays;
        Ob 011111   16 + 8 + 4 + 3 = 31 depends on the change on BIT[28]
        Ob 100000                    32
 
-
+       This is using a right binomial tree
     4. usage: based on BIT to figure out any sub array's sum, product and xor in scenario where
        there is a streaming of value update, not changing the array length, and ask for
        any sub array's sum, product and xor
@@ -119,7 +119,20 @@ public class BinaryIndexedTreeProSum {
 
   BinaryIndexedTreeProSum(int[] A) {
     t = new int[A.length + 1];
+    // this is O(NlogN) time. alternative is O(N) with initial()
     for (int i = 0; i < A.length; i++) add(i + 1, A[i]);
+  }
+
+  // O(N）
+  public int[] initial(int[] A) {
+    int[] t = new int[A.length + 1];
+    for (int i = 0; i < A.length; i++) {
+      int j = i + 1;
+      t[j] += A[i]; // += update node
+      int next = j + (j & -j);
+      if (next <= A.length) t[next] += t[j]; // += update parent
+    }
+    return t;
   }
 
   public void add(int idx, int delta) {

@@ -28,50 +28,43 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class ReverseListTest {
 
-//    @Parameterized.Parameters(name = "test {index}")
-//    public static Iterable<int[]> data() {
-//        return Arrays.asList(new int[][]{
-//                {1, 2, 3, 4},
-//                {},
-//                {1, 2}
-//        });
-//    }
+  //    @Parameterized.Parameters(name = "test {index}")
+  //    public static Iterable<int[]> data() {
+  //        return Arrays.asList(new int[][]{
+  //                {1, 2, 3, 4},
+  //                {},
+  //                {1, 2}
+  //        });
+  //    }
 
-
-    @Parameterized.Parameters(name = "test with {index}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {new int[]{1, 2, 3, 4}},
-                {new int[]{}},
-                {new int[]{1, 2}},
+  @Parameterized.Parameters(name = "test with {index}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(
+        new Object[][] {
+          {new int[] {1, 2, 3, 4}},
+          {new int[] {}},
+          {new int[] {1, 2}},
         });
+  }
+
+  private int[] originalData;
+
+  public ReverseListTest(int[] array) {
+    this.originalData = array;
+  }
+
+  @Test(timeout = 10L, expected = Test.None.class)
+  public void test() {
+    ListNode test;
+    if (originalData.length == 0) {
+      test = null;
+    } else {
+      test = new ListNode(originalData[0]);
+      for (int i = 1; i < originalData.length; i++) {
+        ListRecursion.insertRear(test, originalData[i]);
+      }
     }
-
-    private int[] originalData;
-
-    public ReverseListTest(int[] array) {
-        this.originalData = array;
-    }
-
-    @Test(timeout = 10L, expected = Test.None.class)
-    public void test() {
-        ListNode test;
-        if (originalData.length == 0) {
-            test = null;
-        } else {
-            test = new ListNode(originalData[0]);
-            for (int i = 1; i < originalData.length; i++) {
-                ListRecursion.insertRear(test, originalData[i]);
-            }
-        }
-        Assert.assertEquals(Arrays.toString(ListRecursion.toArray(test)),
-                Arrays.toString(originalData));
-
-        ListNode reversed = C525ReverseList.reverse(test);
-        reversed = C525ReverseList.reverse2(reversed);
-
-        Assert.assertEquals(Arrays.toString(ListRecursion.toArray(reversed)),
-                Arrays.toString(originalData));
-    }
+    Assert.assertEquals(
+        Arrays.toString(ListRecursion.toArray(test)), Arrays.toString(originalData));
+  }
 }
-
