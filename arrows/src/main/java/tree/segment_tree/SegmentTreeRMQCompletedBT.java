@@ -40,7 +40,7 @@ class SegmentTreeRMQCompletedBT {
     f = (a, b) -> Math.min(a, b);
     L = A.length;
     int N = (int) Math.pow(2, (int) Math.ceil(Math.log(L) / Math.log(2)));
-    ST = new int[2 * N];
+    ST = new int[N << 1];
     build(A);
   }
 
@@ -55,9 +55,9 @@ class SegmentTreeRMQCompletedBT {
       return;
     }
     int m = l + r >>> 1;
-    build(2 * idx, l, m, A);
-    build(2 * idx + 1, m + 1, r, A);
-    ST[idx] = f.apply(ST[2 * idx], ST[2 * idx + 1]); // merge
+    build(idx << 1, l, m, A);
+    build(idx << 1 ^ 1, m + 1, r, A);
+    ST[idx] = f.apply(ST[idx << 1], ST[idx << 1 ^ 1]); // merge
   }
 
   /* top-down
@@ -75,9 +75,9 @@ class SegmentTreeRMQCompletedBT {
       return;
     }
     int m = l + r >>> 1;
-    if (i <= m) update(2 * idx, l, m, i, v);
-    else update(2 * idx + 1, m + 1, r, i, v);
-    ST[idx] = f.apply(ST[2 * idx], ST[2 * idx + 1]);
+    if (i <= m) update(idx << 1, l, m, i, v);
+    else update(idx << 1 ^ 1, m + 1, r, i, v);
+    ST[idx] = f.apply(ST[idx << 1], ST[idx << 1 ^ 1]);
   }
 
   public void update(int i, int v) {
@@ -111,10 +111,78 @@ class SegmentTreeRMQCompletedBT {
     if (x <= l && r <= y) return ST[idx]; // FULL
     // MIDDLE or SIDE, need cut
     int m = l + r >>> 1;
-    return f.apply(query(2 * idx, l, m, x, y), query(2 * idx + 1, m + 1, r, x, y));
+    return f.apply(query(idx << 1, l, m, x, y), query(idx << 1 ^ 1, m + 1, r, x, y));
   }
 
   public int query(int x, int y) {
     return query(1, 0, L - 1, x, y);
+  }
+
+  // other feature ------------------------------------------------------------
+  int[] Z; // Z[idx] keeps lazy increment(s) of each element in index range covered by ST[idx]
+  /* top-down
+  O(logL) time.
+  */
+  private void updateLazy(int idx, int l, int r, int x, int y, int c) {
+    if (Z == null) Z = new int[ST.length];
+    // push lazy and new increment(s) of each element out of reached scope down to direct children
+    if (Z[idx] != 0) {
+      ST[idx] += (r - l + 1) * Z[idx]; // this is for pre sum only
+      if (l != r) {
+        Z[idx << 1] += Z[idx];
+        Z[idx << 1 ^ 1] += Z[idx];
+      }
+      Z[idx] = 0;
+    }
+
+    if (y < l || r < x) return; // EMPTY
+    if (x <= l && r <= y) { // FULL
+      ST[idx] += (r - l + 1) * c; // this is for pre sum only
+      if (l != r) {
+        Z[idx << 1] += c;
+        Z[idx << 1 ^ 1] += c;
+      }
+      return;
+    }
+
+    // SIDE || MIDDLE
+    int m = l + r >>> 1;
+    updateLazy(idx << 1, l, m, x, y, c);
+    updateLazy(idx << 1 ^ 1, m + 1, r, x, y, c);
+    ST[idx] = f.apply(ST[idx << 1], ST[idx << 1 ^ 1]); // keep above nodes updated
+  }
+
+  // increase a value v on each element in index range [x,y] of original flat array A[]
+  // update ST accordingly
+  public void updateLazy(int x, int y, int c) {
+    updateLazy(1, 0, L - 1, x, y, c);
+  }
+
+  private int queryLazy(int idx, int l, int r, int x, int y) {
+    // push lazy increment(s) of each element out of reached scope down to direct children
+    if (Z[idx] != 0) { // this node is lazy
+      ST[idx] += (r - l + 1) * Z[idx]; // this is for pre sum only
+      if (l != r) { // update lazy[] for children nodes which is not processed yet
+        Z[idx << 1] += Z[idx];
+        Z[idx << 1 ^ 1] += Z[idx];
+      }
+      Z[idx] = 0;
+    }
+
+    // query for arr[i..j]
+    // default value for not applied index range[l,r]
+    // for sum: 0
+    // for min: Integer.MAX_VALUE
+    // for max: Integer.MIN_VALUE,
+    int d = 0;
+    if (l > y || r < x) return d; // EMPTY
+    if (x <= l && r <= y) return ST[idx]; // FULL
+    // MIDDLE || SIDE
+    int m = l + r >>> 1;
+    return f.apply(queryLazy(idx << 1, l, m, x, y), queryLazy(idx << 1 ^ 1, m + 1, r, x, y));
+  }
+
+  public int queryLazy(int x, int y) {
+    return queryLazy(1, 0, L - 1, x, y);
   }
 }

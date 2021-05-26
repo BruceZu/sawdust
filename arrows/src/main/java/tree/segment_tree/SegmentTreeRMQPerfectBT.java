@@ -53,9 +53,9 @@ public class SegmentTreeRMQPerfectBT {
     f = (a, b) -> Math.min(a, b);
     int L = A.length;
     N = (int) Math.pow(2, (int) Math.ceil(Math.log(L) / Math.log(2)));
-    ST = new int[2 * N];
+    ST = new int[N << 1];
 
-    for (int i = N; i < 2 * N; i++) {
+    for (int i = N; i < N << 1; i++) {
       // for Range min Query  ST[i]= Integer.MAX_VALUE;
       // for Range MAX Query  ST[i]= Integer.MIN_VALUE;
       // for Range SUM Query  ST[i]= 0;
@@ -113,8 +113,8 @@ public class SegmentTreeRMQPerfectBT {
     int d = Integer.MAX_VALUE;
     return f.apply(
         // the [x,y] is mutate
-        x <= m ? queryTopDown(2 * idx, l, m, x, (Math.min(m, y))) : d,
-        y > m ? queryTopDown(2 * idx + 1, (m + 1), r, (Math.max(x, (m + 1))), y) : d);
+        x <= m ? queryTopDown(idx << 1, l, m, x, (Math.min(m, y))) : d,
+        y > m ? queryTopDown(idx << 1 ^ 1, (m + 1), r, (Math.max(x, (m + 1))), y) : d);
   }
 
   /*
