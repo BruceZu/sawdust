@@ -17,6 +17,9 @@ package tree.segment_tree;
 
 import java.util.function.BiFunction;
 
+/*
+ build ST with completed tree. All operation are bottom-up
+*/
 public class SegmentTreeRMQ {
   private final int[] ST;
   private final int L;
@@ -33,7 +36,7 @@ public class SegmentTreeRMQ {
   }
 
   // O(logL) time
-  public void set(int i, int v) {
+  public void update(int i, int v) {
     i = L + i;
     ST[i] = v;
     while (i > 1) {
@@ -51,8 +54,8 @@ public class SegmentTreeRMQ {
     // for max: Integer.MIN_VALUE,
     int a = Integer.MAX_VALUE; // for RMQ
     while (l <= r) {
-      if ((l & 1) == 1) f.apply(a, ST[l++]);
-      if ((r & 1) == 0) f.apply(a, ST[r--]);
+      if ((l & 1) == 1) a = f.apply(a, ST[l++]);
+      if ((r & 1) == 0) a = f.apply(a, ST[r--]);
       l >>>= 1;
       r >>>= 1;
     }

@@ -15,8 +15,6 @@
 
 package tree.binary_indexed_tree;
 
-import java.util.Arrays;
-
 /*
   https://www.youtube.com/watch?v=v_wj_mOAlig
   https://en.wikipedia.org/wiki/Fenwick_tree
@@ -115,52 +113,61 @@ import java.util.Arrays;
  'idx' is 1 based index of `bit tree` array
 */
 public class BinaryIndexedTreeProSum {
-  private final int[] t; // bit tree
+  private final int[] t;
+  private int[] A;
 
   BinaryIndexedTreeProSum(int[] A) {
     t = new int[A.length + 1];
-    // this is O(NlogN) time. alternative is O(N) with initial()
-    for (int i = 0; i < A.length; i++) add(i + 1, A[i]);
+    this.A = A;
+    build(A);
   }
 
-  // O(N）
-  public int[] initial(int[] A) {
-    int[] t = new int[A.length + 1];
+  // O(N）time O(1) space
+  private void build(int[] A) {
     for (int i = 0; i < A.length; i++) {
-      int j = i + 1;
-      t[j] += A[i]; // += update node
-      int next = j + (j & -j);
-      if (next <= A.length) t[next] += t[j]; // += update parent
+      int idx = i + 1;
+      t[idx] += A[i]; // +=, not =, BIT for prefix sum.
+      int next = idx + (idx & -idx);
+      if (next <= A.length) t[next] += t[idx]; // update parent, +=, not =; it is  t[idx], not A[i]
     }
-    return t;
   }
 
-  public void add(int idx, int delta) {
-    while (idx < t.length) { // O(logN)
-      t[idx] += delta; // This is a BIT for prefix sum.
+  // O(logN) time O(1) space
+  private void add(int idx, int delta) {
+    while (idx < t.length) {
+      t[idx] += delta; // BIT for prefix sum.
       idx += idx & -idx;
     }
   }
 
-  // usage: pre sum
-  public int sum(int i) {
-    int sum = 0;
+  /*
+  update A[i]=new_v
+  accordingly update BIT[]
+  require operation support inverse,
+  because need delta; BIT[] only know add operation
+  update A[i] == A[i]+ (new_v -A[i]); the delta can be negative or positive
+  */
+  public void update(int i, int new_v) {
+    int delta = new_v - A[i];
+    A[i] = new_v;
+    add(i + 1, delta);
+  }
+
+  // BIT for prefix sum.
+  // O(logN) time O(1) space
+  private int sumRange(int i) {
+    int s = 0;
     // Note
     int idx = i + 1;
-    while (idx >= 1) { // O(logN)
-      sum += t[idx]; // This is a BIT for prefix sum.
+    while (idx >= 1) {
+      s += t[idx]; // This is a BIT for prefix sum.
       idx -= idx & -idx;
     }
-    return sum;
+    return s;
   }
 
-  // Original flat array A's subarray of index scope [l,r]
-  public int sum(int il, int ir) {
-    return sum(ir) - sum(il - 1);
-  }
-
-  @Override
-  public String toString() {
-    return Arrays.toString(t);
+  // in index scope [l,r] of original flat array A[]
+  public int sumRange(int l, int r) {
+    return sumRange(r) - sumRange(l - 1);
   }
 }
