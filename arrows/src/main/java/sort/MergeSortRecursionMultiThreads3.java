@@ -15,7 +15,6 @@
 
 package sort;
 
-
 import common_lib.Common;
 
 import java.util.concurrent.ForkJoinPool;
@@ -24,41 +23,35 @@ import java.util.concurrent.RecursiveAction;
 import static common_lib.Common.mergeInsort;
 
 public class MergeSortRecursionMultiThreads3 {
-    /**
-     * <pre>
-     * Should use RecursiveTask.
-     * --But as the input is array and only its content is changed in the precess of fork.
-     *   So use RecursiveAction to make it simple.
-     *
-     * --Must join() to wait else the result will be unexpected
-     *
-     * invokeAll(l,r); // same as l.fork();  r.fork(); l.join();  r.join();
-     */
-    private static class DivideMergeInSortAction extends RecursiveAction {
-        private Comparable[] arr;
+  /**
+   * <pre>
+   * Should use RecursiveTask.
+   * --But as the input is array and only its content is changed in the precess of fork.
+   *   So use RecursiveAction to make it simple.
+   *
+   * --Must join() to wait else the result will be unexpected
+   *
+   * invokeAll(l,r); // same as l.fork();  r.fork(); l.join();  r.join();
+   */
+  private static class DivideMergeInSortAction extends RecursiveAction {
+    private Comparable[] A;
 
-        @Override
-        protected void compute() {
-            // Input check, threshold
-            if (arr == null || arr.length <= 1) {
-                return;
-            }
-
-            final Comparable[][] halves = Common.divide(arr);
-
-            invokeAll(new DivideMergeInSortAction(halves[0]),
-                    new DivideMergeInSortAction(halves[1]));
-
-             mergeInsort(halves[0], halves[1], arr);
-        }
-
-        public DivideMergeInSortAction(Comparable[] arr) {
-            this.arr = arr;
-        }
+    @Override
+    protected void compute() {
+      // Input check, threshold
+      if (A == null || A.length <= 1) return;
+      final Comparable[][] halves = Common.divide(A);
+      invokeAll(new DivideMergeInSortAction(halves[0]), new DivideMergeInSortAction(halves[1]));
+      mergeInsort(halves[0], halves[1], A);
     }
 
-    public static <T extends Comparable<T>> void mergeSort(T[] arr) {
-        ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
-        forkJoinPool.invoke(new DivideMergeInSortAction(arr));
+    public DivideMergeInSortAction(Comparable[] A) {
+      this.A = A;
     }
+  }
+
+  public static <T extends Comparable<T>> void mergeSort(T[] A) {
+    ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+    forkJoinPool.invoke(new DivideMergeInSortAction(A));
+  }
 }

@@ -15,55 +15,61 @@
 
 package binarysearch;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
+/*
+  with  Merge sort
+  O(NlogN) time, O(N) space,
+  N is length of A
+*/
 public class Leetcode315CountofSmallerNumbersAfterSelf3 {
-    // Merge sort with tracking of those right-to-left jumps
-    // instead of sort the number in array, sort the indexes of each number.
-    // O(nlogn)
-    static public List<Integer> countSmaller(int[] nums) {
-        int[] idxes = new int[nums.length];
-        for (int i = 0; i < nums.length; i++) {
-            idxes[i] = i;
-        }
-        int[] smallNumThanElementAt = new int[nums.length];
-        mergesort(nums, idxes, smallNumThanElementAt);
-        List<Integer> res = new ArrayList<>();
-        for (int i : smallNumThanElementAt) {
-            res.add(i);
-        }
-        return res;
+  //  Merge sort with tracking of those right-to-left jumps
+  static class N {
+    int v, i;
+
+    N(int v, int i) {
+      this.v = v;
+      this.i = i;
     }
+  }
 
-    static private int[] mergesort(int[] nums, int[] idxes, int[] smallNumThanElementAt) {
-        int half = idxes.length / 2;
-        if (half > 0) {// divide until to 1 element
+  public static List<Integer> countSmaller(int[] nums) {
+    N[] A = new N[nums.length];
+    for (int i = 0; i < nums.length; i++) A[i] = new N(nums[i], i);
 
-            int[] ofL = new int[half];
-            for (int i = 0; i < ofL.length; i++) {
-                ofL[i] = idxes[i];
-            }
+    // Not use int[] r, because result required type is List<Integer>,
+    // but Integer[] r need initial value to avoid value is null pointer
+    Integer[] r = new Integer[nums.length];
+    Arrays.fill(r, 0);
+    mergesort(A, 0, A.length - 1, new N[A.length], r);
+    return Arrays.asList(r);
+  }
 
-            int[] ofR = new int[idxes.length - half];
-            for (int i = 0; i < ofR.length; i++) {
-                ofR[i] = idxes[half + i];
-            }
+  /*
+   Idea:
+    have to calculate result during the sorting process
+     - to handle the duplicated number
+     - the status is dynamic
+     - Observation: The smaller elements on the right of
+      a number will jump from its right to its left during
+      the ascending sorting process.
+   O(NlogN) time
+  */
+  private static void mergesort(N[] A, int s, int e, N[] T, Integer[] a) {
+    if (s == e) return;
+    int m = s + e >>> 1;
+    mergesort(A, s, m, T, a);
+    mergesort(A, m + 1, e, T, a);
+    System.arraycopy(A, s, T, s, e - s + 1);
 
-            ofL = mergesort(nums, ofL, smallNumThanElementAt);
-            ofR = mergesort(nums, ofR, smallNumThanElementAt);
-
-            int l = 0, ri = 0;
-            while (l < ofL.length || ri < ofR.length) {
-                if (ri == ofR.length || l < ofL.length && nums[ofL[l]] <= nums[ofR[ri]]) {
-                    smallNumThanElementAt[ofL[l]] += ri; //ri is just those right-to-left jumps.
-
-                    idxes[l + ri] = ofL[l++];
-                } else {
-                    idxes[l + ri] = ofR[ri++];
-                }
-            }
-        }
-        return idxes;
+    int i = s, j = m + 1, k = s;
+    while (i <= m || j <= e) {
+      if (j == e + 1 || i <= m && T[i].v <= T[j].v) {
+        A[k] = T[i++];
+        a[A[k].i] += j - (m + 1);
+        // cumulate the sum of smaller ones on the right of A[K].v  during sorting
+        k++;
+      } else A[k++] = T[j++];
     }
+  }
 }

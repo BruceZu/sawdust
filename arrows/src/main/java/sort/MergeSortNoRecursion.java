@@ -36,29 +36,26 @@ public class MergeSortNoRecursion {
    * <a href="http://softwareengineering.stackexchange.com/questions/297160/why-is-mergesort-olog-n">O(NLOGN)</a>
    */
   // O(NlogN) runtime, O(N) space.
-  public static <T extends Comparable<T>> void mergeSortNoRecursion(T[] arr) {
-    if (arr == null || arr.length <= 1) return;
-
-    Comparable[] temp = new Comparable[arr.length]; // space O(N)
-    int len = 1;
-    // O(NlgN)
-    while (len < arr.length) {
-      int l = 0;
-      int m = l + len - 1; // first end
+  public static <T extends Comparable<T>> void mergeSortNoRecursion(T[] A) {
+    if (A == null || A.length <= 1) return;
+    Comparable[] T = new Comparable[A.length]; // space O(N)
+    int L = 1; // sorted window length
+    // O(NlogN)
+    while (L < A.length) {
+      int s = 0, m = s + L - 1; // first end
       int e; // end index
-      //  [l, m] and [m+1, end]
+      // [s, m] and [m+1, e]
+      while (m < A.length - 1) {
+        e = s + 2 * L - 1;
+        e = Math.min(e, A.length - 1);
+        merger.mergeInsort(A, s, m, e, T);
+        // 2*L width window are sorted in ascending order
 
-      while (m < arr.length - 1) {
-        e = l + 2 * len - 1;
-        e = Math.min(e, arr.length - 1);
-
-        merger.mergeInsort(arr, l, m, e, temp);
-
-        l = l + 2 * len;
-        m = l + len - 1;
+        s = s + 2 * L;
+        m = s + L - 1;
       }
 
-      len = len << 1;
+      L = L << 1;
     }
   }
 }

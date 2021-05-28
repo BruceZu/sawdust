@@ -20,50 +20,39 @@ import common_lib.Merger;
 
 import java.util.List;
 
-import static common_lib.Common.mergeInsort;
-
 /**
  * @see java.util.Arrays#sort(int[])
  * @see java.util.Collections#sort(List)
  */
 public class MergeSortRecursionSingleThread {
-    static private Merger merger = new Common();
+  private static Merger merger = new Common();
 
-    /**
-     * Merge sort array arr's scope [l, r].
-     *
-     * @param array array
-     * @param l     left bound index, included.
-     * @param r     right bound index, included.
-     * @param tmp   with it, do not need new tmp array every time when mergeInsort and care its length
-     */
-    private static <T extends Comparable<T>> void call(T[] array, int l, int r, T[] tmp) {
-        if (l == r) {
-            // stop recursion when there is only element.
-            return;
-        }
+  /**
+   * Merge sort array arr's scope [l, r].
+   *
+   * @param A array
+   * @param l left bound index, included.
+   * @param r right bound index, included.
+   * @param T with it, do not need new tmp array every time when mergeInsort and care its length
+   */
+  private static <T extends Comparable<T>> void call(T[] A, int l, int r, T[] T) {
+    // stop recursion when there is only element.
+    if (l == r) return;
+    int m = l + r >>> 1;
+    call(A, l, m, T);
+    call(A, m + 1, r, T);
+    merger.mergeInsort(A, l, m, r, T);
+  }
 
-        int mid = (l + r) / 2;
-
-        call(array, l, mid, tmp);
-        call(array, mid + 1, r, tmp);
-
-        merger.mergeInsort(array, l, mid, r, tmp);
-    }
-
-    /**
-     * Merge sort an array with one thread using recursion
-     * Idea:
-     * 1>  Divide into 2 halves  [l, mid] and [mid+1, r]
-     * 2>  Recursion on each halves. if l == r, stop recursion, return to wait mergeInsort
-     * 3>  Merge them into one.
-     */
-    public static void mergeSortRecursion(Comparable[] arr) {
-        // Input check
-        if (arr == null || arr.length <= 1) { // note: arr may be empty array: {}
-            return;
-        }
-        call(arr, 0, arr.length - 1, // note: The index is included
-                new Comparable[arr.length]);
-    }
+  /**
+   * Merge sort an array with one thread using recursion Idea: 1> Divide into 2 halves [l, mid] and
+   * [mid+1, r] 2> Recursion on each halves. if l == r, stop recursion, return to wait mergeInsort
+   * 3> Merge them into one.
+   */
+  public static void mergeSortRecursion(Comparable[] A) {
+    // Input check, // note: arr may be empty array: {}
+    if (A == null || A.length <= 1) return;
+    // note: The index is included
+    call(A, 0, A.length - 1, new Comparable[A.length]);
+  }
 }

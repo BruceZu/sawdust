@@ -15,10 +15,17 @@
 
 package binarysearch;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Leetcode493ReversePairs4 {
+   static class BST { // binary search tree
+        final int v;
+        int l_sum; // number moving over the node to its left, or left sub tree nodes account.
+
+        BST l, r;
+
+        public BST(int v) {
+            this.v = v;
+        }
+    }
     //  toward right to count node whose value is equal or less than target value
     //  keep the count number of left subtree nodes.
     //  Access and build BST
@@ -29,7 +36,7 @@ public class Leetcode493ReversePairs4 {
         if (nums == null || nums.length == 0) {
             return 0;
         }
-        BSTNode root = new BSTNode(nums[nums.length - 1]);
+        BST root = new BST(nums[nums.length - 1]);
         int totalPairNum = 0;
         for (int i = nums.length - 2; i >= 0; i--) {
             totalPairNum += towardRightCountEqualLessThanFrom(root,
@@ -40,40 +47,40 @@ public class Leetcode493ReversePairs4 {
         return totalPairNum;
     }
 
-    static private int towardRightCountEqualLessThanFrom(BSTNode root, int v) {
+    static private int towardRightCountEqualLessThanFrom(BST root, int v) {
         int result = 0;
         while (true) {
             if (root == null) {
                 return result;
             }
             if (v == root.v) {
-                return result + root.leftSubTreeNodesNum + 1;
+                return result + root.l_sum + 1;
             }
 
             if (v < root.v) {
-                root = root.left;
+                root = root.l;
             } else {
-                result += root.leftSubTreeNodesNum + 1;
-                root = root.right;
+                result += root.l_sum + 1;
+                root = root.r;
             }
         }
     }
 
-    static private void insertToBSTFrom(BSTNode root, int cur) {
+    static private void insertToBSTFrom(BST root, int cur) {
         while (true) {
             if (cur <= root.v) {
-                root.leftSubTreeNodesNum++;
-                if (root.left == null) {
-                    root.left = new BSTNode(cur);
+                root.l_sum++;
+                if (root.l == null) {
+                    root.l = new BST(cur);
                     break;
                 }
-                root = root.left;
+                root = root.l;
             } else {
-                if (root.right == null) {
-                    root.right = new BSTNode(cur);
+                if (root.r == null) {
+                    root.r = new BST(cur);
                     break;
                 }
-                root = root.right;
+                root = root.r;
             }
         }
     }

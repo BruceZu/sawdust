@@ -19,59 +19,69 @@ import java.util.Arrays;
 import java.util.List;
 
 
-class BSTNode {
-    final int v;
-    int leftSubTreeNodesNum;   // left Sub tree nodes account
-
-    BSTNode left;
-    BSTNode right;
-
-    public BSTNode(int val) {
-        this.v = val;
-    }
-}
-
+/*
+   with BST.
+   O(NlogN~N^2) time  balanced tree ~ not balanced tree.
+   Time Limit Exceeded
+ */
 public class Leetcode315CountofSmallerNumbersAfterSelf4 {
+  static class BST { // binary search tree
+    final int v;
+    int l_sum; // number moving over the node to its left, or left sub tree nodes account.
 
-    // BST
-    // Access and build BST with loop
-    // O(nlogn) if it is balance tree
-    public List<Integer> countSmaller(int[] nums) {
-        Integer[] result = new Integer[nums.length];
-        if (nums == null || nums.length == 0) {
-            return Arrays.asList(result);
-        }
+    BST l, r;
 
-        BSTNode root = new BSTNode(nums[nums.length - 1]);
-        result[nums.length - 1] = 0; // Integer default is null
-
-        for (int i = nums.length - 2; i >= 0; i--) {
-            insert(root, result, i, nums);
-        }
-        return Arrays.asList(result);
+    public BST(int v) {
+      this.v = v;
     }
+  }
+  /*
+   During the process of building BST calculate the smaller number of each A[i]
+   start from right most element of A[i], moving it
+   from root to its destiny location where the node is null.
+   during the process
+    - along the routine, at the location of each existing node to calculate the number of nodes
+      whose value <= A[i] and keep the number in v.
+    - all existing node's l_sum is the number of nodes moving over the node to its left
+      so keep updating existing node.l_sum if current A[i] moving over it to its left.
+    - once A[i] reach a location where node is null, then it reach its destiny.
+      create a new node with A[i] there and integrate it with BST.
+      at the time the v is a[i]
 
-    private void insert(BSTNode parent, Integer[] smallNumThanElementAtIndexOf, int i, int[] array) {
-        int cur = array[i];
-        int way2 = 0;
-        while (true) {
-            if (cur <= parent.v) {
-                parent.leftSubTreeNodesNum++;
-                if (parent.left == null) {
-                    parent.left = new BSTNode(cur);
-                    smallNumThanElementAtIndexOf[i] = way2;
-                    break;
-                }
-                parent = parent.left;
-            } else {
-                way2 += parent.leftSubTreeNodesNum + 1; // (elements in the parent's left subtree) plus one (the parent element itself).
-                if (parent.right == null) {
-                    parent.right = new BSTNode(cur);
-                    smallNumThanElementAtIndexOf[i] = way2;
-                    break;
-                }
-                parent = parent.right;
-            }
+   for duplicated number: if current A[i] reach a node, both of them
+   have the same value, then take the relation as A[i] < node.value,
+   thus the v will not include the the node and current A[i] will move
+   to current node left sub-tree branch.
+  */
+  public static List<Integer> countSmaller(int[] A) {
+    Integer[] a = new Integer[A.length];
+    BST root = new BST(A[A.length - 1]);
+    root.l_sum = 0;
+    a[A.length - 1] = 0;
+    // use null as value of root to call build() then no way to keep previous BST status
+    for (int i = A.length - 2; i >= 0; i--) build(A, i, root, 0, a);
+    return Arrays.asList(a);
+  }
+
+  private static void build(int[] A, int i, BST n, int v, Integer[] a) {
+    while (n != null) {
+      if (A[i] <= n.v) {
+        n.l_sum = n.l_sum + 1; // According to lsm definition
+        if (n.l == null) {
+          n.l = new BST(A[i]);
+          a[i] = v;
+          return;
         }
+        n = n.l;
+      } else {
+        v = v + n.l_sum + 1; // BST attribute
+        if (n.r == null) {
+          n.r = new BST(A[i]);
+          a[i] = v;
+          return;
+        }
+        n = n.r;
+      }
     }
+  }
 }

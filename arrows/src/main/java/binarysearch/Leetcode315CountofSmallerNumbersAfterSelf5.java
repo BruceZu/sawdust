@@ -1,4 +1,4 @@
-//  Copyright 2017 The keepTry Open Source Project
+//  Copyright 2021 The KeepTry Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,31 +17,28 @@ package binarysearch;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
+/*
+ with TreeSet
+ t.headSet(A[i]).size()
+ O(n^2) time
+ Time Limit Exceeded
+*/
 public class Leetcode315CountofSmallerNumbersAfterSelf5 {
-    //  Access and build BST with recursion
-    //  O(nlogn) if it is balance tree
-    static public List<Integer> countSmaller(int[] nums) {
-        Integer[] result = new Integer[nums.length];
-        BSTNode root = null;
-        for (int i = nums.length - 1; i >= 0; i--) {
-            root = insert(root, i, 0, result, nums);
-        }
-        return Arrays.asList(result);
-    }
 
-    static private BSTNode insert(BSTNode parent, int index, int way2Num,
-                                  Integer[] numOfNodeSmallerThanNodeAtIndexOf, int[] array) {
-        if (parent == null) {
-            parent = new BSTNode(array[index]);
-            numOfNodeSmallerThanNodeAtIndexOf[index] = way2Num;
-        } else if (array[index] <= parent.v) {
-            parent.leftSubTreeNodesNum++;
-            parent.left = insert(parent.left, index, way2Num, numOfNodeSmallerThanNodeAtIndexOf, array);
-        } else {
-            parent.right = insert(parent.right, index, way2Num + parent.leftSubTreeNodesNum + 1,
-                    numOfNodeSmallerThanNodeAtIndexOf, array);
-        }
-        return parent;
+  /*
+    Traverse the array backwards, meanwhile build a self balanced BST (AVL, RB-tree)
+    with comparator (a, b) -> (a >= b) ? 1 : -1).
+  */
+  public static List<Integer> countSmaller2(int[] A) {
+    Integer[] r = new Integer[A.length];
+    TreeSet<Integer> t = new TreeSet<>((a, b) -> a <= b ? -1 : 1);
+    for (int i = A.length - 1; i >= 0; i--) {
+      t.add(A[i]); // A[i] is the a in comparator;
+      r[i] = t.headSet(A[i]).size(); // O(n) A[i] is the a in comparator;
+      // set.headSet(e) is O(1),  but SortedSet<E>.size() is O(N) or O(1)
     }
+    return Arrays.asList(r);
+  }
 }

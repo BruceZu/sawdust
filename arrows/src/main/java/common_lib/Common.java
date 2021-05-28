@@ -202,28 +202,24 @@ public class Common implements Merger {
   }
 
   /*
-  For a given array, sort its sub array [l, r] Assume
-  1> [l, mid] and [mid+1, r] are sorted  already.
+  Sort index range [s, e] of array A in ascending order
+  Assume [s,m],[m+1,e] are already sorted in ascending order
+  Note:
   2> not thread safe.
-  3> l < r
-
-  In one thread tmp array is provided for performance concern in recursion.
-  without `new` more tmp arrays.
+  3> s <= m <= e
+  T is temporary array.
   */
   @Override
-  public void mergeInsort(Comparable[] array, int start, int midEnd, int end, Comparable[] tmp) {
-    if (start >= end) return; // input check
-    if (lessThan(array[midEnd], array[midEnd + 1])) return; // already sorted
-    System.arraycopy(array, start, tmp, start, end - start + 1);
+  public void mergeInsort(Comparable[] A, int s, int m, int e, Comparable[] T) {
+    if (s >= e) return; // input check
+    if (lessThan(A[m], A[m + 1])) return; // already sorted
+    System.arraycopy(A, s, T, s, e - s + 1);
     // merge from temp array
-    int l = start, r = midEnd + 1;
-    int i = start;
-    while (!(l == midEnd + 1 && r == end + 1)) {
-      if (r == end + 1 || l <= midEnd && lessThan(tmp[l], tmp[r])) {
-        array[i++] = tmp[l++];
-      } else {
-        array[i++] = tmp[r++];
-      }
+    int l = s, r = m + 1;
+    int i = s;
+    while (!(l == m + 1 && r == e + 1)) {
+      if (r == e + 1 || l <= m && lessThan(T[l], T[r])) A[i++] = T[l++];
+      else A[i++] = T[r++];
     }
   }
 }

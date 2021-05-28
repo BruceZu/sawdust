@@ -15,65 +15,64 @@
 
 package binarysearch;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+/*
+  with segment tree(ST)
+  O(NlogN) time, O(N) space,
+  N is length of A
+*/
 public class Leetcode315CountofSmallerNumbersAfterSelf2 {
-    //  Merge sort with tracking of those right-to-left jumps
-    static class V_I {
-        int v;
-        int idx;
-
-        V_I(int number, int index) {
-            this.v = number;
-            this.idx = index;
-        }
+  public List<Integer> countSmaller(int[] A) {
+    int[] sorted = A.clone();
+    int[] map = new int[A.length];
+    Arrays.sort(sorted); // O(nlogn)
+    for (int i = 0; i < A.length; i++) { // O(nlogn)
+      map[i] = Arrays.binarySearch(sorted, A[i]);
     }
+    // map[] is index mapping, to have A[i]==sorted[map[i]]
 
-    static public List<Integer> countSmaller(int[] nums) {
-        V_I[] array = new V_I[nums.length];
-        for (int i = 0; i < nums.length; i++) {
-            array[i] = new V_I(nums[i], i);
-        }
-        int[] smallNumThanElementAt = new int[nums.length];
-        mergeSortWithTrackingSmaller(array, smallNumThanElementAt);
-        List<Integer> res = new ArrayList<>();
-        for (int i : smallNumThanElementAt) {
-            res.add(i);
-        }
-        return res;
+    int[] ST = new int[2 * A.length];
+    // build with zero value array with length of L
+    int L = A.length;
+
+    Integer[] a = new Integer[A.length];
+    for (int i = A.length - 1; i >= 0; i--) {
+      a[i] = sum(map[i] - 1, ST, L);
+      update(map[i], ST, L);
     }
+    return Arrays.asList(a);
+  }
 
-    // O(nlogn)
-    static private V_I[] mergeSortWithTrackingSmaller(V_I[] sortingArray, int[] smallNumThanElementAt) {
-        int half = sortingArray.length / 2;
-        if (half > 0) {// divide until cannot divide any more when one 1 element.
-
-            V_I[] ofL = new V_I[half];
-            for (int i = 0; i < ofL.length; i++) {
-                ofL[i] = sortingArray[i];
-            }
-
-            V_I[] ofR = new V_I[sortingArray.length - half];
-            for (int i = 0; i < ofR.length; i++) {
-                ofR[i] = sortingArray[half + i];
-            }
-
-            ofL = mergeSortWithTrackingSmaller(ofL, smallNumThanElementAt);
-            ofR = mergeSortWithTrackingSmaller(ofR, smallNumThanElementAt);
-
-            int l = 0, ri = 0;
-            while (l < ofL.length || ri < ofR.length) {
-                if (ri == ofR.length || l < ofL.length && ofL[l].v <= ofR[ri].v) {
-                    sortingArray[l + ri] = ofL[l];
-                    smallNumThanElementAt[ofL[l].idx] += ri; //ri is just those right-to-left jumps.
-                    l++;
-                } else {
-                    sortingArray[l + ri] = ofR[ri];
-                    ri++;
-                }
-            }
-        }
-        return sortingArray;
+  /*
+  Sum of index range [0,i] of original flat array x
+  by ST.
+  O(logN) time, O(1）space
+  */
+  private int sum(int i, int[] ST, int L) {
+    int l = L, r = L + i;
+    int a = 0;
+    while (l <= r) {
+      if ((l & 1) == 1) a += ST[l++];
+      if ((r & 1) == 0) a += ST[r--];
+      l >>>= 1;
+      r >>>= 1;
     }
+    return a;
+  }
+
+  /*
+    Increase 1 at index i of the original flat array x
+    updating ST accordingly
+    O(logN) time, O(1）space
+  */
+  private void update(int i, int[] ST, int L) {
+    int idx = i + L;
+    ST[idx] += 1; // delta is 1;
+    while (idx >= 2) {
+      ST[idx >>> 1] = ST[idx] + ST[idx ^ 1];
+      idx >>>= 1;
+    }
+  }
 }

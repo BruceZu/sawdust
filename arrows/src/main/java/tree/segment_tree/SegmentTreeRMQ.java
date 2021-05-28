@@ -39,7 +39,7 @@ public class SegmentTreeRMQ {
   public void update(int i, int v) {
     i = L + i;
     ST[i] = v;
-    while (i > 1) {
+    while (i >= 2) {
       ST[i >>> 1] = f.apply(ST[i], ST[i ^ 1]);
       i >>>= 1;
     }

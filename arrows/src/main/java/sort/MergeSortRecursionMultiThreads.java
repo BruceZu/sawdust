@@ -23,58 +23,57 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static common_lib.Common.divide;
 
 public class MergeSortRecursionMultiThreads {
-    /**
-     * Merge sort an array in recursion with multi-threads
-     * <pre>
-     * Idea:
-     * 1> divide into 2 sub arrays
-     * 2> apply divide-merge in sort logical recursively on 2 sub arrays
-     * 3> merge them into one in sort
-     *
-     * Note, when arr == null || arr.length <= 1, then
-     * stop start
-     * or
-     * stop recursion and return to wait merge in sort directly
-     *
-     */
-    private static AtomicInteger numberOfThreads = new AtomicInteger();
+  /**
+   * Merge sort an array in recursion with multi-threads
+   * <pre>
+   * Idea:
+   * 1> divide into 2 sub arrays
+   * 2> apply divide-merge in sort logical recursively on 2 sub arrays
+   * 3> merge them into one in sort
+   *
+   * Note, when arr == null || arr.length <= 1, then
+   * stop start
+   * or
+   * stop recursion and return to wait merge in sort directly
+   *
+   */
+  private static AtomicInteger numberOfThreads = new AtomicInteger();
 
-    public static <T extends Comparable<T>> void mergeSort(T[] arr) {
-        // Input check
-        if (arr == null || arr.length <= 1) {
-            return;
-        }
-        // 1 Divide into 2 halves
-        final Comparable[][] halves = divide(arr);
+  public static <T extends Comparable<T>> void mergeSort(T[] A) {
+    // Input check
+    if (A == null || A.length <= 1) return;
 
-        // 2 Sort each halves
-        final CountDownLatch cdLatch = new CountDownLatch(2);
-        new Thread(
-                        () -> {
-                            mergeSort(halves[0]);
-                            numberOfThreads.getAndAdd(1);
-                            cdLatch.countDown();
-                        })
-                .start();
-        new Thread(
-                        () -> {
-                            mergeSort(halves[1]);
-                            numberOfThreads.getAndAdd(1);
-                            cdLatch.countDown();
-                        })
-                .start();
+    // 1 Divide into 2 halves
+    final Comparable[][] hs = divide(A);
 
-        // 3 Merge them back into one.
-        try {
-            cdLatch.await(); // Simple than join() and CyclicBarrier
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Common.mergeInsort(halves[0], halves[1], arr);
+    // 2 Sort each halves
+    final CountDownLatch cd = new CountDownLatch(2);
+    new Thread(
+            () -> {
+              mergeSort(hs[0]);
+              numberOfThreads.getAndAdd(1);
+              cd.countDown();
+            })
+        .start();
+    new Thread(
+            () -> {
+              mergeSort(hs[1]);
+              numberOfThreads.getAndAdd(1);
+              cd.countDown();
+            })
+        .start();
+
+    // 3 Merge them back into one.
+    try {
+      cd.await(); // Simple than join() and CyclicBarrier
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
+    Common.mergeInsort(hs[0], hs[1], A);
+  }
 
-    public static void main(String[] args) {
-        mergeSort(new Integer[] {3, 6, 8, 6, 1, 2, 90, 44});
-        System.out.println(numberOfThreads.get());
-    }
+  public static void main(String[] args) {
+    mergeSort(new Integer[] {3, 6, 8, 6, 1, 2, 90, 44});
+    System.out.println(numberOfThreads.get());
+  }
 }

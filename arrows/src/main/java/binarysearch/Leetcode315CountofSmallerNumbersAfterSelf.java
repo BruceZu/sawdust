@@ -15,60 +15,28 @@
 
 package binarysearch;
 
-import java.io.InputStream;
 import java.util.*;
 
-/**
- * <pre>
- * <a href="https://leetcode.com/problems/count-of-smaller-numbers-after-self/?tab=Description">LeetCode</a>
- */
 public class Leetcode315CountofSmallerNumbersAfterSelf {
 
-    // O(N^2) It is slow but the code is easy to keep
-    static public List<Integer> countSmaller2(int[] nums) {
-        Integer[] result = new Integer[nums.length];
-
-        ArrayList<Integer> list = new ArrayList<>();
-        for (int i = nums.length - 1; i >= 0; --i) {
-            result[i] = ~Collections.binarySearch(list, nums[i],
-                    (a, toBeInsert) -> a >= toBeInsert ? 1 : -1);// when a == b, b is insert before a, a is moved back.
-            list.add(result[i], nums[i]);
-        }
-        System.out.println(Arrays.toString(result));
-        return Arrays.asList(result);
+  /*
+  Skill:
+  - if binary search result x is a negative number
+    then the index should be got by -(x+1) = -x-1 = (~x+1)-1 = ~x
+  - duplicated number will be take as not same (a, b) -> a >= b ? 1 : -1
+      when a == b, b is insert at the index of a, a is moved back.
+    to make the result of   Collections.binarySearch(l, A[i], (a, b) -> a >= b ? 1 : -1)
+    always be negative
+  Idea: intuitive
+  log(N!) = O(NlogN) time
+  */
+  public static List<Integer> countSmaller(int[] A) {
+    Integer[] r = new Integer[A.length];
+    List<Integer> l = new ArrayList<>(); // is a sorted list
+    for (int i = A.length - 1; i >= 0; i--) {
+      r[i] = ~Collections.binarySearch(l, A[i], (a, b) -> a >= b ? 1 : -1);
+      l.add(r[i], A[i]); // O(1) for ArrayList.
     }
-
-    // traverse the array backwards meanwhile build a BST (AVL, RB-tree..    (a, toBeInsert) -> (a >= toBeInsert) ? 1 : -1.).
-    // The key is how to get how many nodes in tree smaller than current node.
-    // O(n^2)
-    // Time Limit Exceeded
-    // Treeset there is not keep the size of 'tree.headSet(nums[i]).size()'
-    static public List<Integer> countSmaller(int[] nums) {
-        Integer[] result = new Integer[nums.length];
-        TreeSet<Integer> tree = new TreeSet<>(
-                (a, toBeInsert) -> a <= toBeInsert ? -1 : 1); // when a == b, b will not replace a in set, b is 'bigger'
-        for (int i = nums.length - 1; i >= 0; i--) {
-            tree.add(nums[i]);
-            result[i] = tree.headSet(nums[i]).size();// o(n)
-            // headSet(x): if in set there 'x,x' with the specific comparator the fist x will be 'bigger' than x.
-        }
-        System.out.println(Arrays.toString(result));
-        return Arrays.asList(result);
-    }
-
-    //--------------------------------------------------------
-    public static void main(String[] args) {
-        countSmaller(new int[]{1, 3, 2, 3, 1});
-        countSmaller(new int[]{2, 0, 1, 0});
-        countSmaller(new int[]{5, 2, 2, 6, 1});
-
-        //                      0  1  2  3  4  5
-        countSmaller(new int[]{5, 2, 3, 7, 6, 1});
-        //                      3  1  1  2  1  0
-
-        countSmaller(new int[]{1, 7, 9});
-        countSmaller(new int[]{1, 1});
-        System.out.println(Integer.MAX_VALUE - Integer.MIN_VALUE);
-        System.out.println(Integer.MIN_VALUE - Integer.MAX_VALUE);
-    }
+    return Arrays.asList(r);
+  }
 }

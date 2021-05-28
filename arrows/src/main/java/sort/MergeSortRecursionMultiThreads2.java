@@ -24,64 +24,54 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class MergeSortRecursionMultiThreads2<T extends Comparable<T>> {
-    private static Merger merger = new Common();
+  private static Merger merger = new Common();
 
-    // Runnable is enough, do not need Callable as each thread only work on its elements scope of arr
-    private static class DivideMergeInSort implements Runnable {
-        private Comparable[] arr, tmp;
-        private int l, r;
+  // Runnable is enough, do not need Callable as each thread only work on its elements scope of arr
+  private static class DivideMergeInSort implements Runnable {
+    private Comparable[] A, T;
+    private int l, r;
 
-        @Override
-        public void run() {
-            if (l == r) {
-                // stop divide
-                return;
-            }
+    @Override
+    public void run() {
+      // stop divide
+      if (l == r) return;
+      int m = l + r >>> 1;
+      try {
+        Future<?> f = executor.submit(new DivideMergeInSort(A, l, m, T));
+        Future<?> f2 = executor.submit(new DivideMergeInSort(A, m + 1, r, T));
+        f.get();
+        f2.get();
+      } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+      }
 
-            int mid = (l + r) / 2;
-
-            try {
-                Future<?> f = executorService.submit(new DivideMergeInSort(arr, l, mid, tmp));
-                Future<?> f2 = executorService.submit(new DivideMergeInSort(arr, mid + 1, r, tmp));
-                f.get();
-                f2.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            merger.mergeInsort(arr, l, mid, r, tmp);
-        }
-
-        public DivideMergeInSort(Comparable[] arr, int l, int r, Comparable[] tmp) {
-            this.arr = arr;
-            this.l = l;
-            this.r = r;
-            this.tmp = tmp;
-        }
+      merger.mergeInsort(A, l, m, r, T);
     }
 
-    private static ExecutorService executorService;
-
-    public static <T extends Comparable<T>> void mergeSort(T[] arr) {
-        // Input check
-        if (arr == null || arr.length <= 1) { // note: arr may be empty array: {}
-            return;
-        }
-        try {
-            // https://www.mathsisfun.com/algebra/sequences-sums-geometric.html
-            executorService =
-                    Executors.newFixedThreadPool(
-                            2 * arr.length - 2 /*Runtime.getRuntime().availableProcessors();*/);
-            executorService
-                    .submit(
-                            new DivideMergeInSort(
-                                    arr, 0, arr.length - 1, new Comparable[arr.length]))
-                    .get();
-
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        } finally {
-            executorService.shutdown();
-        }
+    public DivideMergeInSort(Comparable[] A, int l, int r, Comparable[] T) {
+      this.A = A;
+      this.l = l;
+      this.r = r;
+      this.T = T;
     }
+  }
+
+  private static ExecutorService executor;
+
+  public static <T extends Comparable<T>> void mergeSort(T[] A) {
+    // Input check, note: arr may be empty array: {}
+    if (A == null || A.length <= 1) return;
+    try {
+      // https://www.mathsisfun.com/algebra/sequences-sums-geometric.html
+      executor =
+          Executors.newFixedThreadPool(
+              2 * A.length - 2 /*Runtime.getRuntime().availableProcessors();*/);
+      executor.submit(new DivideMergeInSort(A, 0, A.length - 1, new Comparable[A.length])).get();
+
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    } finally {
+      executor.shutdown();
+    }
+  }
 }

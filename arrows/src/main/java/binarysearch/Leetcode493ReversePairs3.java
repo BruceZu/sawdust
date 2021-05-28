@@ -16,6 +16,16 @@
 package binarysearch;
 
 public class Leetcode493ReversePairs3 {
+   static class BST { // binary search tree
+        final int v;
+        int l_sum; // number moving over the node to its left, or left sub tree nodes account.
+
+        BST l, r;
+
+        public BST(int v) {
+            this.v = v;
+        }
+    }
     //  toward right to count node whose value is equal or less than target value
     //  keep the count number of left subtree nodes.
     //  Access and build BST
@@ -24,7 +34,7 @@ public class Leetcode493ReversePairs3 {
     //  Time Limit Exceeded
     static public int reversePairs(int[] nums) {
         int totalPairNum = 0;
-        BSTNode root = null;
+        BST root = null;
         for (int i = nums.length - 1; i >= 0; i--) {
             totalPairNum += towardRightCountEqualLessThanFrom(root,
                     (int) (Math.floor(  (nums[i] - 1) * 0.5d))); // pros: do not need long
@@ -34,29 +44,29 @@ public class Leetcode493ReversePairs3 {
         return totalPairNum;
     }
 
-    static private BSTNode insertToBSTFrom(BSTNode root, int v) {
+    static private BST insertToBSTFrom(BST root, int v) {
         if (root == null) {
-            root = new BSTNode(v);
+            root = new BST(v);
         } else if (v <= root.v) {
-            root.leftSubTreeNodesNum++;
-            root.left = insertToBSTFrom(root.left, v);
+            root.l_sum++;
+            root.l = insertToBSTFrom(root.l, v);
         } else {
-            root.right = insertToBSTFrom(root.right, v);
+            root.r = insertToBSTFrom(root.r, v);
         }
         return root;
     }
 
     // count those <= (x-1)/2
-    static private int towardRightCountEqualLessThanFrom(BSTNode root, int v) {
+    static private int towardRightCountEqualLessThanFrom(BST root, int v) {
         if (root == null) {
             return 0;
         }
         if (v < root.v) {
-            return towardRightCountEqualLessThanFrom(root.left, v);
+            return towardRightCountEqualLessThanFrom(root.l, v);
         }
         if (v == root.v) {
-            return root.leftSubTreeNodesNum + 1;
+            return root.l_sum + 1;
         }
-        return root.leftSubTreeNodesNum + 1 + towardRightCountEqualLessThanFrom(root.right, v);
+        return root.l_sum + 1 + towardRightCountEqualLessThanFrom(root.r, v);
     }
 }
