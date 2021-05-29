@@ -18,7 +18,7 @@ package bfs;
 import java.util.*;
 
 public class MinNumberofOperationNeededToSortaSequenceofNumbers {
-  //  Min number of operation needed to sort a sequence of numbers
+  // Facebook | Min number of operation needed to sort a sequence of numbers
   /*
   Given an integer N, and a permutation, P of the integers from 1 to N,
   denoted as (a_1, a_2, ..., a_N), rearrange the elements of the permutation
