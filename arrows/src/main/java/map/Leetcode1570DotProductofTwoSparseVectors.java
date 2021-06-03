@@ -27,34 +27,20 @@ class SparseVector {
   1 <= n <= 10^5
   0 <= nums1[i], nums2[i] <= 100
   */
-  public Map<Integer, Integer> v = new HashMap();
-  public int size = 0;
+  public Map<Integer, Integer> v = new HashMap(); // index:value
 
   SparseVector(int[] nums) {
-    for (int i = 0; i < nums.length; i++) {
-      if (nums[i] != 0) {
-        v.put(i, nums[i]);
-      }
-    }
-    size = nums.length;
+    for (int i = 0; i < nums.length; i++) if (nums[i] != 0) v.put(i, nums[i]);
   }
 
-  // Return the dotProduct of two sparse vectors
-  // O(N) time and space. N is the min(size of 2 SparseVector)
+  // Return the dotProduct of two sparse vectors/array
+  // O(N) time and space
   public int dotProduct(SparseVector vec) {
-    if (vec.size == 0 || this.size == 0) return 0;
-    if (vec.size < this.size) return vec.dotProduct(this);
-    // what is the definition of dot product? should not it be same length?
-    int sum = 0;
-    for (Map.Entry<Integer, Integer> cur : v.entrySet()) {
-      int idx = cur.getKey();
-      if (vec.v.containsKey(idx)) sum += cur.getValue() * vec.v.get(idx);
+    int r = 0;
+    for (Map.Entry<Integer, Integer> e : v.entrySet()) {
+      int i = e.getKey();
+      if (vec.v.containsKey(i)) r += e.getValue() * vec.v.get(i);
     }
-    return sum;
+    return r;
   }
 }
-
-// Your SparseVector object will be instantiated and called as such:
-// SparseVector v1 = new SparseVector(nums1);
-// SparseVector v2 = new SparseVector(nums2);
-// int ans = v1.dotProduct(v2);

@@ -64,6 +64,38 @@ public class Leetcode215KthLargestElementinanArray {
    4. replace recursion with loop
        O(N) time. O(1) space
   */
+  // no recursion implement ---------------------------------------------------
+  public int findKthLargest(int[] nums, int k) {
+    // TODO: check corner cases
+    //  return valueOfKinexInAscendingOrder(nums, 0, nums.length - 1, nums.length - k);
+    int l = 0, r = nums.length - 1, K = k - 1;
+    // K: index of Kth bigger numb in Descending array, [l, r] not quick sorted index range.
+    while (true) {
+      // i: pivotal index
+      int i = midPivotIndexAfterDescendingGroup(nums, l, r);
+      if (i == K) return nums[i];
+      else if (i > K) r = i - 1;
+      else l = i + 1;
+    }
+  }
+
+  private int midPivotIndexAfterDescendingGroup(int[] nums, int from, int to) {
+    int pi = (from + to) >> 1, p = nums[pi];
+    swap(nums, pi, to);
+    int idx = from; // index for next bigger element than the value of pivotal
+    for (int i = from; i < to; i++) if (nums[i] > p) swap(nums, i, idx++);
+    swap(nums, idx, to);
+    return idx;
+  }
+
+  private static void swap(int[] nums, int l, int r) {
+    if (l != r) {
+      int t = nums[l] ^ nums[r];
+      nums[l] ^= t;
+      nums[r] ^= t;
+    }
+  }
+  // recursion implement ------------------------------------------------------
   private int valueOfKinexInAscendingOrder(int[] nums, int start, int end, int K) {
     int l = start, r = end, p = nums[r];
     // O(N)
@@ -73,36 +105,5 @@ public class Leetcode215KthLargestElementinanArray {
     if (l == K) return nums[l];
     else if (l < K) return valueOfKinexInAscendingOrder(nums, l + 1, r, K); // half
     else return valueOfKinexInAscendingOrder(nums, start, l - 1, K); // half
-  }
-
-  // no recursion implement ---------------------------------------------------
-  public int findKthLargest(int[] nums, int k) {
-    // TODO: check corner cases
-    //  return valueOfKinexInAscendingOrder(nums, 0, nums.length - 1, nums.length - k);
-    int l = 0, r = nums.length - 1, K = k - 1; // index of Kth bigger numb in Descending array
-    while (true) {
-      int pi = midPivotIndexAfterDescendingGroup(nums, l, r);
-      if (pi == K) return nums[pi];
-      else if (pi > K) r = pi - 1;
-      else l = pi + 1;
-    }
-  }
-
-  // replace recursion with loop
-  private int midPivotIndexAfterDescendingGroup(int[] nums, int from, int to) {
-    int pi = (from + to) >> 1, p = nums[pi];
-    swap(nums, pi, to);
-    int l = from;
-    for (int i = from; i < to; i++) if (nums[i] > p) swap(nums, i, l++);
-    swap(nums, l, to);
-    return l;
-  }
-
-  private static void swap(int[] nums, int l, int r) {
-    if (l != r) {
-      int t = nums[l] ^ nums[r];
-      nums[l] ^= t;
-      nums[r] ^= t;
-    }
   }
 }

@@ -55,6 +55,7 @@ public class Leetcode1130MinimumCostTreeFromLeafValues {
     -- make code of calculating the cost of A[i] concise when remove A[i]
        in scenario where the stack status is (MAX_VAL,A[i]) and
        current element `cur` is bigger one. cost = A[i]*cur
+   O(N) time and space, N is length of A[]
    */
   public int mctFromLeafValues(int[] A) {
     int r = 0;

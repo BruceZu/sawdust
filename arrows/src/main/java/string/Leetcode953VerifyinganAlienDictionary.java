@@ -19,40 +19,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Leetcode953VerifyinganAlienDictionary {
-  private boolean inOrder(String l, String r, Map<Character, Integer> d) {
-    int i = 0, j = 0;
-    while (i < l.length() && j < r.length()) {
-      // Note the meaning of lexicographicaly order
-      if (d.get(l.charAt(i)) < d.get(r.charAt(j))) return true;
-      if (d.get(l.charAt(i)) > d.get(r.charAt(j))) return false;
-      i++;
-      j++;
-    }
-    return i == l.length();
-  }
-  // O(N*M) time M is the longest word in words and N is words length
+  /*
+   "1 <= words.length <= 100
+   1 <= words[i].length <= 20
+   order.length == 26
+   All characters in words[i] and order are English lowercase letters."
+
+   Understanding:
+    use Map or array int[26]
+
+    O(N*M) time M is the longest word in words and N is words length
+  */
   public boolean isAlienSorted(String[] words, String order) {
-    /*
-    TODO: corner cases checking
-
-     1 <= words.length <= 100
-     1 <= words[i].length <= 20
-     order.length == 26
-     All characters in words[i] and order are English lowercase letters.
-    */
-
-    // ' All characters in words[i] and order are English lowercase letters.'
-    // So alternative is a int[26]
+    // TODO: check null
     Map<Character, Integer> d = new HashMap();
-
-    // O(N)
-    for (int i = 0; i < order.length(); i++) {
-      d.put(order.charAt(i), i + 1);
-    }
+    for (int i = 0; i < order.length(); i++) d.put(order.charAt(i), i + 1); // O(N)
     // O(N*M) M is the longest word in words
     for (int i = 0; i <= words.length - 2; i++) {
       if (!inOrder(words[i], words[i + 1], d)) return false;
     }
     return true;
+  }
+
+  private boolean inOrder(String l, String r, Map<Character, Integer> d) {
+    int i = 0, j = 0;
+    while (i < l.length() && j < r.length()) {
+      // Note the meaning of lexicographically order
+      if (d.get(l.charAt(i)) < d.get(r.charAt(j))) return true;
+      if (d.get(l.charAt(i)) > d.get(r.charAt(j))) return false;
+      // same
+      i++;
+      j++;
+    }
+    return i == l.length();
   }
 }

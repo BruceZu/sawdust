@@ -26,7 +26,7 @@ public class Leetcode1871JumpGameVII {
   the previous value of j is decided by the previous jum scope's right boundary index
   `j <= Math.min((int) s.length - 1, i + maxJump)`
   So i and j move O(N) times in total
-  space O(1)
+  space O(N)
   */
   public boolean canReach(String A, int minJump, int maxJump) {
     char[] s = A.toCharArray();

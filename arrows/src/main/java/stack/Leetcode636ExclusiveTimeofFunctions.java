@@ -34,6 +34,13 @@ public class Leetcode636ExclusiveTimeofFunctions {
        TODO: corner cases validation
     */
     /*
+       single-threaded CPU
+       Function calls are stored in a call stack
+       log message formatted as a string
+           "{function_id}:{"start" | "end"}:{timestamp}"
+       started at the beginning of timestamp x
+       ended at the end of timestamp x
+
     Idea
         - CPU will not have idle time.
         - CPU runs task at timestamp-start and stop at timestamp-end: so
@@ -46,34 +53,40 @@ public class Leetcode636ExclusiveTimeofFunctions {
          time      : 0   1   2   3   4   5   6   7   8   9
         running task 0------02--------------20--01---10--0
       Note:
-        At time interval [6, 7):
+        In the above case, at time interval [6, 7):
         The running task is 0 which started at time point 6
         after its previous task 2 ends at time point 5.
         From the view of task 1: its previous task is 2 in the log sequence order from which no way to
         know who was running before task 1 starts.
       So need a stack:
         Each time interval has a start time and has a task running in it.
-        - use stack top keep current running task ID,
-        - use start keep current time interval start time
+        - use stack  `t`'s top keep current running task ID,
+        - use start `s` keep current time interval start time
         Update them at each log entry and calculate the just finished time interval for the task who
         was running in it.
+      when it is a start log:
+         if there is some function was running before current function: l[0] starts, so need to
+         calculate the time interval for that function which should stop at the end of the time
+         point: Integer.parseInt(l[2])-1, so the time interval is Integer.parseInt(l[2]) - s;
+      els if it is end log:
+         end log makes sure there is already a `start` log: and the interval is:
+          Integer.parseInt(l[2]) + 1 -s
+
       O(N) time, O(N) space.
      */
 
-    int[] r = new int[n]; // keep result
-    Stack<Integer> t = new Stack<>();
-    int s = 0;
+    int[] r = new int[n];
+    Stack<Integer> t = new Stack<>(); // previous function ID
+    int s = 0; // start time
     for (String log : logs) {
       String[] l = log.split(":");
       if (l[1].equals("start")) {
-        // There is some task was running before current task of l[0] starts, so need to
-        // calculate the time interval for that task
         if (!t.isEmpty()) r[t.peek()] += Integer.parseInt(l[2]) - s;
         // update current task and start time
         t.push(Integer.parseInt(l[0]));
         s = Integer.parseInt(l[2]);
-      } else { // `end` log, sure there is already a `start` log
-        r[t.peek()] += Integer.parseInt(l[2]) - s + 1;
+      } else {
+        r[t.peek()] += Integer.parseInt(l[2]) + 1 - s;
         // update current task and start time
         t.pop();
         if (!t.isEmpty()) s = Integer.parseInt(l[2]) + 1;

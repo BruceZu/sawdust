@@ -136,36 +136,38 @@ public class Leetcode29DivideTwoIntegers {
   }
 
   /*
+  Dividend ÷ divisor = quotient
   Idea:
       Binary Long Division
-       figure out the first position of dr to align with d and start the binary long division.
+       figure out the first position of `b` to align with `a` and start the binary long division.
        and shift divisor to the right until can't shift it any further
        So also need to know the right time to stop the binary long division.
-      O(log_dr^d)) time and O(1) space. dr is Divisor, d is dividend
+      O(log_b^a)) time and O(1) space. b is Divisor, a is dividend
   */
 
-  public static int divide(int d, int dr) {
+  public static int divide(int a, int b) { // a/b=?
     // Special cases: overflow.
-    if (d == Integer.MIN_VALUE && dr == -1) return Integer.MAX_VALUE;
-    if (d == Integer.MIN_VALUE && dr == 1) return Integer.MIN_VALUE;
-    boolean isNegtive = false;
-    if ((d >>> 31) + (dr >>> 31) == 1) isNegtive = true;
-    if (d > 0) d = -d;
-    if (dr > 0) dr = -dr;
+    if (a == Integer.MIN_VALUE && b == -1) return Integer.MAX_VALUE;
+    if (a == Integer.MIN_VALUE && b == 1) return Integer.MIN_VALUE;
+    boolean isNegtive = false; // result sign
+    if ((a >>> 31) + (b >>> 31) == 1) isNegtive = true;
+    if (a > 0) a = -a;
+    if (b > 0) b = -b;
 
     int from = 0;
-    while (d <= (dr << 1) && (dr << 1) < 0) {
+    while (a <= (b << 1) && (b << 1) < 0) {
       from += 1;
-      dr += dr;
+      b += b;
     }
-    int r = 0;
+    // Binary Long Division
+    int r = 0; // quotient=Dividend ÷ divisor
     for (int m = from; m >= 0; m--) {
-      if (d <= dr) {
-        r += -(1 << m);
-        d -= dr;
+      if (a <= b) {
+        r += 1 << m;
+        a -= b;
       }
-      dr >>= 1;
+      b >>= 1;
     }
-    return isNegtive ? r : -r;
+    return isNegtive ? -r : r;
   }
 }
