@@ -36,22 +36,31 @@ public class Leetcode199BinaryTreeRightSideView {
       this.right = right;
     }
   }
-  // Implement ----------------------------------------------------------------
+  // Implement ================================================================
+  /*
+  Idea:
+    - use `middle, right, left` order
+    - how to know current node should be in result list:
+      checking whether the current node' level is > visited level
+      If true then this is a new level
+    the result list size is just the visited level +1
+    and level is 0-based. so checking
+          `current node' level is > visited level`
+    becomes checking
+          current node' level is == result list size
+   O(N) time, O(H) space H is the tree height
+
+
+   The number of nodes in the tree is in the range [0, 100].
+   -100 <= Node.val <= 100
+    TODO: check null
+  */
   public List<Integer> rightSideView(TreeNode root) {
-    /*
-
-    The number of nodes in the tree is in the range [0, 100].
-    -100 <= Node.val <= 100
-    TODO: check corner cases
-    */
-
     List<Integer> r = new LinkedList();
     help(root, 0, r);
     return r;
   }
 
-  // `middle, right, left` order
-  // O(N) time, O(H) space H is the tree height
   private void help(TreeNode n, int l, List<Integer> r) {
     if (n == null) return;
     if (r.size() == l) {

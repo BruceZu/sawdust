@@ -34,40 +34,52 @@ public class Leetcode426ConvertBinarySearchTreetoSortedDoublyLinkedList {
     }
   }
 
-
   /*
    The number of nodes in the tree is in the range [0, 2000].
    -1000 <= Node.val <= 1000
    All the values of the tree are unique.
+
+  Question:
+    Convert a Binary Search Tree to a sorted Circular Doubly-Linked List in place.
+    return the pointer to the smallest element of the linked list.
+  Idea:
+   divide-conquer idea:
+    need help function to do:
+    - sub-tree-> double linked list
+    - right-tree->double linked list
+    - merge left list+ current node + right list
+    need checking null in advance
+    the result is the head and tail of the double linked list.
+    at last connect the head and tail and return the head(smallest one)
+
+   O(N) time, O(H) space used by recursion. H is height of tree.
   */
-  // Assume node is not null
-  // O(N) time, O(H) space. H is height of tree.
+
   public static Node treeToDoublyList(Node root) {
-    // TODO: corner cases validation
     if (root == null) return null;
-    Node[] lr = inOrder(root);
-    Node l = lr[0], r = lr[1];
-    l.left = r; // Note: the smallest Node's left is null and will connect to the biggest one
-    r.right = l;
-    return l;
+    Node[] ht = inOrder(root); // head and tail of double linked list
+    Node h = ht[0], t = ht[1];
+    h.left = t;
+    t.right = h;
+    return h;
   }
 
   public static Node[] inOrder(Node root) {
-    Node l, r;
+    Node h, t; // head and tail
     if (root.left != null) {
-      Node[] lr = inOrder(root.left);
-      l = lr[0];
-      lr[1].right = root;
-      root.left = lr[1];
-    } else l = root;
+      Node[] ht = inOrder(root.left);
+      h = ht[0];
+      ht[1].right = root;
+      root.left = ht[1];
+    } else h = root;
 
     if (root.right != null) {
-      Node[] lr = inOrder(root.right);
-      r = lr[1];
-      lr[0].left = root;
-      root.right = lr[0];
-    } else r = root;
+      Node[] ht = inOrder(root.right);
+      t = ht[1];
+      ht[0].left = root;
+      root.right = ht[0];
+    } else t = root;
 
-    return new Node[] {l, r};
+    return new Node[] {h, t};
   }
 }

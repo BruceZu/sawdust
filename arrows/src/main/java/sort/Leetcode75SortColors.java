@@ -16,26 +16,32 @@
 package sort;
 
 public class Leetcode75SortColors {
-    private void swap(int[] arr, int i, int j) {
-        if (arr[i] != arr[j]) {
-            arr[i] ^= arr[j];
-            arr[j] ^= arr[i];
-            arr[i] ^= arr[j];
-        }
+  /*
+   Idea:
+    -  l: next insert index for color 0,
+       r: is next insert index for color 2,
+       i: is current index, after processing it is color 1.
+    -  stop when i > r
+   O(N）Time, O(1) space
+  */
+  public void sortColors(int[] A) {
+    int l = 0, r = A.length - 1, i = 0;
+    while (i <= r) { // stop when i>r
+      if (A[i] == 0) {
+        swap(A, i++, l++);
+      } else if (A[i] == 2) {
+        swap(A, i, r--); // Note: r--, i stay here
+      } else {
+        i++;
+      }
     }
+  }
 
-    /*---------------------------------------------------------------------------------*/
-    public void sortColors(int[] nums) {
-        int left = 0, r = nums.length - 1;
-        int i = 0;
-        while (i <= r) { // care  <=
-            if (nums[i] == 0) {
-                swap(nums, i++, left++);
-            } else if (nums[i] == 1) {
-                i++;
-            } else {
-                swap(nums, i, r--); // care --
-            }
-        }
+  private void swap(int[] A, int i, int j) {
+    if (A[i] != A[j]) {
+      int tmp = A[i] ^ A[j];
+      A[j] = tmp ^ A[j];
+      A[i] = tmp ^ A[i];
     }
+  }
 }

@@ -16,77 +16,48 @@
 package backtracing;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-/**
- * <pre>
- * all digit mapped letter will take part in the result. each result' length is same as the input's length.
- * duplicated letters may be in result. e.g. input can be '22'. so use List. not Set
- * recursion:  can keep status of current letter of current letters of current digit.
- *             but the downside is this get performance slow.
- *
- * Permutations are for lists (order matters) and combinations are for groups (order doesn't matter)
- *
- * <a href='https://leetcode.com/problems/letter-combinations-of-a-phone-number/'>LeetCode</a>
- */
+/*
+    0 <= digits.length <= 4
+    digits[i] is a digit in the range ['2', '9'].
+
+
+Idea:
+ prepare a map: digit-> string
+ if use Array as map:  index = digit[i] - '0'
+
+O(L^N) time and space
+ N is the length of digits.
+ L is  the maximum value length in the hash map, it is 4
+*/
 public class Leetcode17LetterCombinationsofaPhoneNumber {
-    private static Map<Character, String> digitToLetters = new HashMap();
+  private static String[] map =
+      new String[] {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 
-    static {
-        digitToLetters.put('1', ""); // not letter
-        digitToLetters.put('2', "abc");
-        digitToLetters.put('3', "def");
-        digitToLetters.put('4', "ghi");
-        digitToLetters.put('5', "jkl");
-        digitToLetters.put('6', "mno");
-        digitToLetters.put('7', "pqrs");
-        digitToLetters.put('8', "tuv");
-        digitToLetters.put('9', "wxyz");
-        digitToLetters.put('0', ""); // not letter
+  private List<String> r = new ArrayList<>();
+  private String d;
+
+  public List<String> letterCombinations(String digits) {
+    // TODO check null
+    if (digits.length() == 0) return r;
+
+    d = digits;
+    backtrack(0, new StringBuilder());
+    return r;
+  }
+
+  private void backtrack(int i, StringBuilder a) {
+    if (a.length() == d.length()) {
+      r.add(a.toString());
+      return;
     }
 
-    private static void f(String digits, int curDigitIndex, List<Character> r, List<String> rs) {
-        if (curDigitIndex == digits.length()) {
-            StringBuilder sb = new StringBuilder();
-            for (Character c : r) {
-                sb.append(c);
-            }
-            rs.add(sb.toString());
-            return;// care
-        }
-
-        String letters = digitToLetters.get(digits.charAt(curDigitIndex));
-        if (letters.length() == 0) {
-            f(digits, curDigitIndex + 1, r, rs);
-        } else {
-            for (int j = 0; j < letters.length(); j++) {
-                Character curLetter = letters.charAt(j);
-                r.add(curLetter);
-                f(digits, curDigitIndex + 1, r, rs);
-                r.remove(r.size() - 1);
-            }
-        }
+    String possibleLetters = map[d.charAt(i) - '0'];
+    for (char c : possibleLetters.toCharArray()) {
+      a.append(c);
+      backtrack(i + 1, a);
+      a.deleteCharAt(a.length() - 1);
     }
-
-    // assume the digits is String of 0~9 only
-    public static List<String> letterCombinations(String digits) {
-        List<String> rs = new ArrayList();
-        if (digits == null || digits.length() == 0) {
-            return rs; // confirm with user
-        }
-
-        List<Character> r = new ArrayList<>();
-        f(digits, 0, r, rs);
-        return rs;
-    }
-
-    //--------------------------------------------------------------------------------------------
-    public static void main(String[] args) {
-        List<String> rs = letterCombinations("22");
-        for (String r : rs) {
-            System.out.println(r);
-        }
-    }
+  }
 }

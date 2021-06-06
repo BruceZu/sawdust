@@ -43,9 +43,8 @@ public class Leetcode560SubarraySumEqualsK {
     */
 
     /*
-    Idea
-     With a pre calculated pre sum array to get a algorithm O(N^2) time and O(N) space
-     further with a temp cumulative sum to get a algorithm O(N^2) time and O(1) space:
+       Idea 1> pre calculated a pre sum array: O(N^2) time and O(N) space
+       Idea 2> a temp cumulative sum to get a algorithm O(N^2) time and O(1) space:
        public int subarraySum(int[] nums, int k) {
          int count = 0;
          for (int start = 0; start < nums.length; start++) {
@@ -58,17 +57,18 @@ public class Leetcode560SubarraySumEqualsK {
          }
          return count;
        }
-
-     With pre sum and its account kep in a map to get a algorithm O(N) time and O(N) space
+       Idea 3> With map: pre sum and its account kep
+        O(N) time and O(N) space
      */
-    Map<Integer, Integer> map = new HashMap(); // map Sum To its Counts
-    int preSum = 0, r = 0; // sum is presum of nums[0],..., nums[i]
+    Map<Integer, Integer> m = new HashMap(); // map Sum To its Counts
+    int s = 0, r = 0; // s: presum of nums[0],..., nums[i]
+    m.put(s, m.getOrDefault(s, 0) + 1);
     for (int i : nums) {
       // Once it is hit later by later_sum - k = this_sum then we find it/them
       // how many is it? check the v of k:v mapping.
-      map.put(preSum, map.getOrDefault(preSum, 0) + 1);
-      preSum += i;
-      r += map.getOrDefault(preSum - k, 0);
+      s += i;
+      r += m.getOrDefault(s - k, 0);
+      m.put(s, m.getOrDefault(s, 0) + 1);
     }
     return r;
   }
