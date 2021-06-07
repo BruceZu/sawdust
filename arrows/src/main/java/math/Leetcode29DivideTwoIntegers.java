@@ -149,24 +149,27 @@ public class Leetcode29DivideTwoIntegers {
     // Special cases: overflow.
     if (a == Integer.MIN_VALUE && b == -1) return Integer.MAX_VALUE;
     if (a == Integer.MIN_VALUE && b == 1) return Integer.MIN_VALUE;
+
     boolean isNegtive = false; // result sign
     if ((a >>> 31) + (b >>> 31) == 1) isNegtive = true;
+
     if (a > 0) a = -a;
     if (b > 0) b = -b;
 
-    int from = 0;
+    int m = 0;
     while (a <= (b << 1) && (b << 1) < 0) {
-      from += 1;
+      m += 1;
       b += b;
     }
     // Binary Long Division
     int r = 0; // quotient=Dividend ÷ divisor
-    for (int m = from; m >= 0; m--) {
+    while (m >= 0) {
       if (a <= b) {
         r += 1 << m;
         a -= b;
       }
       b >>= 1;
+      m--;
     }
     return isNegtive ? -r : r;
   }

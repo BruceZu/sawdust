@@ -27,19 +27,24 @@ public class Leetcode238ProductOfArrayExceptSelf {
    If initial element of result[] with 1
     1> result[i] = result[i] * product[0,i-1]
     2> result[i] = result[i] * product[i+1,length-1]
-   */
-  public int[] productExceptSelf(int[] nums) {
-    int[] re = new int[nums.length];
-    Arrays.fill(re, 1); // initial re[i] is 1
-    int N = nums.length;
-    int l = 1, r = 1; // cumulative product of [0,i-1] and of [j+1,length-1]
-    for (int i = 0, j = N - 1; i < N && j >= 0; i++, j--) {
-      re[i] *= l; // note it is *= not =
-      l *= nums[i];
 
-      re[j] *= r;
-      r *= nums[j];
+    O(N）time, O(N） space
+   */
+  public int[] productExceptSelf(int[] A) {
+    // TODO check null
+    int N = A.length;
+
+    int[] a = new int[A.length];
+    Arrays.fill(a, 1); // initial re[i] is 1
+    int l = 1, r = 1; // cumulative product of [0,i-1] and of [j+1,length-1]
+
+    for (int i = 0, j = N - 1; i < N && j >= 0; i++, j--) {
+      a[i] *= l; // note it is *= not =
+      l *= A[i];
+
+      a[j] *= r;
+      r *= A[j];
     }
-    return re;
+    return a;
   }
 }

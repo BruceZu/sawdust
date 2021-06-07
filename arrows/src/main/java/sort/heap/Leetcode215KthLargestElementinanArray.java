@@ -80,7 +80,7 @@ public class Leetcode215KthLargestElementinanArray {
   }
 
   private int midPivotIndexAfterDescendingGroup(int[] nums, int from, int to) {
-    int pi = (from + to) >> 1, p = nums[pi];
+    int pi = (from + to) >>> 1, p = nums[pi];
     swap(nums, pi, to);
     int idx = from; // index for next bigger element than the value of pivotal
     for (int i = from; i < to; i++) if (nums[i] > p) swap(nums, i, idx++);

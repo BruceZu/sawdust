@@ -15,41 +15,111 @@
 
 package list;
 
-/**
- * <a href="https://leetcode.com/problems/reverse-nodes-in-k-group/#/description">Leetcode</a>
- * Only constant memory is allowed.
- * <pre>
- * For example,
- * Given this linked list: 1->2->3->4->5
- *
- * For k = 2, you should return: 2->1->4->3->5
- *
- * For k = 3, you should return: 3->2->1->4->5
- */
 public class Leetcode25ReverseNodesinkGroup {
-    // O(?)
-    public ListNode reverseKGroup(ListNode head, int k) {
-        ListNode nextHead = head;
-        int count = 0;
-        while (nextHead != null && count != k) { // find the k+1 node
-            nextHead = nextHead.next;
-            count++;
-        }
-        if (count == k) { // if k+1 node is found
-            ListNode pre = reverseKGroup(nextHead, k); // pre is the updated nextHead too
-            ListNode next;
-            while (head != nextHead) {
-                next = head.next;
-                head.next = pre;
-                pre = head;
-                head = next;
-            }
-            head = pre; // updated head now
-        }
-        return head;
-    }
+  /*
+  Given this linked list: 1->2->3->4->5
 
-    public static void main(String[] args) {
-        // null, [], length <k, =k,>k ...
+    k = 2, you should return: 2->1->4->3->5
+    k = 3, you should return: 3->2->1->4->5
+
+    The number of nodes in the list is in the range sz.
+    1 <= sz <= 5000
+    0 <= Node.val <= 1000
+    1 <= k <= sz
+
+
+  Idea:
+    nodes status:                 [head ->, .., -> end] -> next head
+    after swap:      next head  <-[head <-, .., <- end]
+
+    like stack:
+               firstly need to know the next head.
+               - with it to do recursion and use the new next head as
+                 pre node used in swap current k node
+               - with it or k to know the right time to stop swap process
+  O(N) time. process each node exactly twice
+  O(N/k) space used up by the recursion stack.
+   */
+  public ListNode reverseKGroup(ListNode head, int k) {
+    // TODO: check null, positive
+    ListNode nh = head; // find the next head, use
+    int count = 0;
+    while (nh != null && count != k) {
+      count++;
+      nh = nh.next;
     }
+    if (count == k) { // need swap:
+      ListNode pre = reverseKGroup(nh, k), cur = head, next;
+      while (cur != nh) {
+        next = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = next;
+      }
+      return pre; // updated head now
+    }
+    return head;
+  }
+
+  public ListNode reverseKGroup2(ListNode head, int k) {
+    int count = 0;
+    ListNode nh = head;
+    while (count < k && nh != null) {
+      count++;
+      nh = nh.next;
+    }
+    if (count == k) {
+      ListNode pre = null, cur = head;
+      while (count > 0) {
+        ListNode next = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = next;
+        count--;
+      }
+      // connect reversed k nodes' tail to next reversed k nodes head
+      head.next = reverseKGroup(nh, k);
+      return pre;
+    }
+    return head;
+  }
+
+  // improve O(N/k) space to O(1) without recursion
+  public ListNode reverseKGroup3(ListNode head, int k) {
+    ListNode i = head;
+    ListNode pTail = null; // pre k nodes' tail node
+    ListNode final_head = null;
+
+    while (i != null) {
+      int count = 0;
+      // Start counting nodes from the head
+      i = head;
+      // Find the head of the next k nodes
+      while (count < k && i != null) {
+        i = i.next;
+        count += 1;
+      }
+      if (count == k) { // need reverse k nodes and get the new head
+        ListNode pre = null;
+        ListNode n = head;
+
+        while (count > 0) {
+          ListNode next_node = n.next;
+          n.next = pre;
+          pre = n;
+          n = next_node;
+          count--;
+        }
+        ListNode revHead = pre;
+        if (final_head == null) final_head = revHead;
+        if (pTail != null) pTail.next = revHead;
+
+        pTail = head;
+        head = i;
+      }
+    }
+    // attach the final, possibly un-reversed portion
+    if (pTail != null) pTail.next = head;
+    return final_head == null ? head : final_head;
+  }
 }

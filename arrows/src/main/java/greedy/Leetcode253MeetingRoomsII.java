@@ -18,12 +18,13 @@ package greedy;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Leetcode253MeetingRoomsII {
   /*
-  Use a min heap: to keep end time used to judge if
+  Use a min heap of end time: to keep end time used to judge if
   there is free room compared with current meeting start time
-  Min heap:
+  Min heap of end time:
      1. top's time is the one which can finished earlier than any other meeting,
      thus provide free room.
      2. size is the room number
@@ -32,8 +33,8 @@ public class Leetcode253MeetingRoomsII {
   public int minMeetingRooms(int[][] A) {
     if (A == null || A.length == 0) return 0;
     Arrays.sort(A, Comparator.comparingInt(a -> a[0])); // Sort by start time
-    PriorityQueue<Integer> q = new PriorityQueue<>(A.length, Comparator.comparingInt(a -> a));
-    q.add(A[0][1]);
+    Queue<Integer> q = new PriorityQueue<>(A.length, Comparator.comparingInt(a -> a));
+    q.add(A[0][1]); // end time
     for (int i = 1; i < A.length; i++) {
       if (q.peek() <= A[i][0]) q.poll();
       q.add(A[i][1]); // overlap: no free room available, then need allocate a room

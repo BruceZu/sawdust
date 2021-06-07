@@ -70,15 +70,15 @@ public class MorrisTraversal {
    */
   public static boolean flap(Node n) {
     if (n.l == null) return false;
-    Node pred = n.l; // left sub tree right most node, node 'n''s predecessor child in-order
-    while (pred.r != null && pred.r != n) {
-      pred = pred.r;
+    Node x = n.l; // left sub tree right most node, node 'n''s predecessor child in-order
+    while (x.r != null && x.r != n) {
+      x = x.r;
     }
-    if (pred.r == null) {
-      pred.r = n;
+    if (x.r == null) {
+      x.r = n;
       return true;
     } else {
-      pred.r = null;
+      x.r = null;
       return false;
     }
   }
