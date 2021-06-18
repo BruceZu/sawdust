@@ -22,6 +22,9 @@ public class Leetcode1028RecoveraTreeFromPreorderTraversal {
     return preOrder(new String[] {S}, 0);
   }
 
+  // s is the reference of original String
+  // d is the depth of current node
+  // return current sub tree head
   public static TreeNode preOrder(String[] s, int d) {
     if (s[0] == null) return null;
     // If a node has only one child, that child is guaranteed to be the left child.
@@ -29,9 +32,9 @@ public class Leetcode1028RecoveraTreeFromPreorderTraversal {
     while (l < s[0].length() && s[0].charAt(l) == '-') l++;
     if (l == d) { // match location
       s[0] = s[0].substring(l);
-      //  '1 <= Node.val <= 10^9'
+      //  '1 <= Node.val <= 10^9' so value maybe not one number
       l = 0;
-      while (l < s[0].length() && s[0].charAt(l) != '-') l++;
+      while (l < s[0].length() && s[0].charAt(l) != '-') l++; //
       TreeNode node = new TreeNode(Integer.valueOf(s[0].substring(0, l)));
       s[0] = s[0].substring(l);
       node.left = preOrder(s, d + 1);

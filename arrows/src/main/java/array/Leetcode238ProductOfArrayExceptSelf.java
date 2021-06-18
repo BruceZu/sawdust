@@ -19,31 +19,22 @@ import java.util.Arrays;
 
 public class Leetcode238ProductOfArrayExceptSelf {
   /*
-  Idea:
-   result[i] = product[0,i-1] * product[i+1,length-1]
-   So It can be calculated in 2 steps.
-    1> result[i] = product[0,i-1]
-    2> result[i] = result[i] * product[i+1,length-1]
-   If initial element of result[] with 1
-    1> result[i] = result[i] * product[0,i-1]
-    2> result[i] = result[i] * product[i+1,length-1]
-
     O(N）time, O(N） space
    */
   public int[] productExceptSelf(int[] A) {
-    // TODO check null
+    if (A == null) return null;
     int N = A.length;
 
     int[] a = new int[A.length];
-    Arrays.fill(a, 1); // initial re[i] is 1
-    int l = 1, r = 1; // cumulative product of [0,i-1] and of [j+1,length-1]
+    Arrays.fill(a, 1);
+    int l = 1, r = 1;
 
-    for (int i = 0, j = N - 1; i < N && j >= 0; i++, j--) {
+    for (int i = 0; i < N; i++) {
       a[i] *= l; // note it is *= not =
       l *= A[i];
 
-      a[j] *= r;
-      r *= A[j];
+      a[N - 1 - i] *= r;
+      r *= A[N - 1 - i];
     }
     return a;
   }

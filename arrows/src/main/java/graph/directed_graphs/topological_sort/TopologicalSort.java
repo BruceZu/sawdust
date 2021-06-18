@@ -172,8 +172,8 @@ public class TopologicalSort {
     for (Node n : out.keySet()) if (hasCircle(n, out, inPath)) return "";
 
     StringBuilder r = new StringBuilder();
-    Set<Node> visited = new HashSet();
-    for (Node v : out.keySet()) dfsCalculateTopologicalOrder(v, out, r, visited);
+    Set<Node> set = new HashSet(); // visited
+    for (Node v : out.keySet()) dfsCalculateTopologicalOrder(v, out, r, set);
     return r.reverse().toString();
   }
   /*
@@ -192,10 +192,10 @@ public class TopologicalSort {
    They can merged together but not easy to read
   */
   private static void dfsCalculateTopologicalOrder(
-      Node n, Map<Node, Set<Node>> out, StringBuilder r, Set<Node> calculated) {
-    if (calculated.contains(n)) return; // stop this path
-    calculated.add(n);
-    for (Node o : out.get(n)) dfsCalculateTopologicalOrder(o, out, r, calculated);
+      Node n, Map<Node, Set<Node>> out, StringBuilder r, Set<Node> visit) {
+    if (visit.contains(n)) return; // stop this path
+    visit.add(n);
+    for (Node o : out.get(n)) dfsCalculateTopologicalOrder(o, out, r, visit);
     r.append(n); // Topological Order: Only all sub tree are recorded can record current node.
   }
 

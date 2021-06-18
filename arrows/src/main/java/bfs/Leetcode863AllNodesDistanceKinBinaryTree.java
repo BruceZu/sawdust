@@ -18,7 +18,7 @@ package bfs;
 import java.util.*;
 
 public class Leetcode863AllNodesDistanceKinBinaryTree {
-  class TreeNode {
+  static class TreeNode {
     int val;
     TreeNode left;
     TreeNode right;
@@ -28,132 +28,56 @@ public class Leetcode863AllNodesDistanceKinBinaryTree {
     }
   }
 
-  // origin idea ----------------------------------------------------------------
+  // solution---------------------------------------------------------------
   /*
-  TODO: corner cases checking
+   The given tree is non-empty.
+   Each node in the tree has unique values 0 <= node.val <= 500.
+   The target node is a node in the tree.
+   0 <= K <= 1000.
 
-  The given tree is non-empty.
-  Each node in the tree has unique values 0 <= node.val <= 500.
-  The target node is a node in the tree.
-  0 <= K <= 1000.
-   */
+   Note: node unique values
 
-  /*
-  Note:
-  1. Each node in the tree has unique values
-  2. result is List<Integer>  not List<TreeNode>
-  O(N) time
-  3> current solution have 2 parts:
-     -31- collection via parents. need avoid the path from target to current parent
-     -32- collection from target and its children
-   */
-  public List<Integer> distanceK2(TreeNode root, TreeNode target, int K) {
-    Map<TreeNode, TreeNode> p = new HashMap();
-    findParents(root, null, target, p);
-    List<Integer> r = new ArrayList<>();
-    // A:  collect from up direction. Need avoid path from target to current parent
-    int upSteps = 1; // distance from target to current parent
-    TreeNode cur = target;
-    TreeNode parent = p.get(cur);
-    while (upSteps <= K && parent != null) {
-      getFromUpDirection(parent, cur, K - upSteps, r);
+   O(N) time and space
+  */
 
-      cur = parent;
-      parent = p.get(parent);
-      upSteps++;
-    }
-    // B: collect from target and downside direction
-    bfs2(target, K, r);
-    return r;
+  public static List<Integer> distanceK(TreeNode root, TreeNode target, int K) {
+    List<Integer> a = new ArrayList<>();
+    dfs(root, 0, K, a, target, new Integer[1]);
+    return a;
   }
 
-  // Assume TreeNode 'from' and 'exclude' is not null
-  // O(N) time
-  private void getFromUpDirection(
-      TreeNode from, TreeNode exclude, int distance, List<Integer> result) {
-    if (distance == 0) {
-      result.add(from.val);
-      return;
+  // check found the target or not from current node's subtree not other nodes' subtree;
+  // has return found or not, once found will not continue the recursion.
+  // so if it is null: has not found yet and not found again here
+  public static boolean dfs(
+      TreeNode n, int level, int K, List<Integer> a, TreeNode t, Integer[] tl) {
+    if (n == null) return false;
+    if (n == t) {
+      bfs(t, K, a);
+      tl[0] = level; // target node level
+      return true; // need return
     }
-    TreeNode node = from.left == exclude ? from.right : from.left;
-    if (distance == 1 && node != null) {
-      result.add(node.val);
-      return;
-    }
-    // distance>=2
-    if (node == null) return;
-    bfs2(node, distance - 1, result);
-  }
 
-  // DFS O(N) time
-  private void findParents(
-      TreeNode node, TreeNode parent, TreeNode target, Map<TreeNode, TreeNode> p) {
-    if (node == null) return;
-    p.put(node, parent);
-    if (node == target) return;
-    findParents(node.left, node, target, p);
-    findParents(node.right, node, target, p);
-  }
-
-  private void bfs2(TreeNode from, int level, List<Integer> r) {
-    Queue<TreeNode> q = new LinkedList();
-    q.offer(from);
-    int l = 0; // `from` Node is level 0
-    while (l != level) {
-      l++; // next batch
-      int left = q.size();
-      while (left-- > 0) {
-        TreeNode top = q.poll();
-        if (top.left != null) q.offer(top.left);
-        if (top.right != null) q.offer(top.right);
-      }
-    }
-    while (!q.isEmpty()) {
-      r.add(q.poll().val);
-    }
-  }
-
-  // Implement: BFS in DFS ----------------------------------------------------------------
-  // Idea comes from 'Leetcode Solution 2'
-  // (N）Time
-  public List<Integer> distanceK(TreeNode root, TreeNode target, int K) {
-    List<Integer> r = new ArrayList<>();
-    dfs(root, new int[1], K, r, target);
-    return r;
-  }
-
-  // `int[] dis` keep the value of distance which is calculated from target, which is 0,
-  //             to current node.
-  //             It can be as result be return back to above recursion. in his case the default
-  //             value will  be -1.
-  public boolean dfs(TreeNode node, int[] dis, int K, List<Integer> result, TreeNode target) {
-    if (node == null) return false;
-    if (node == target) {
-      bfs(target, K, result);
-      dis[0] = 1;
+    boolean l = dfs(n.left, level + 1, K, a, t, tl);
+    boolean r = dfs(n.right, level + 1, K, a, t, tl);
+    // Each node in the tree has unique value
+    if (l || r) {
+      int d = tl[0] - level; // distance from target node to current node
+      if (d == K) a.add(n.val);
+      if (l && d < K) bfs(n.right, K - d - 1, a); // -1: means minus the n.right
+      if (r && d < K) bfs(n.left, K - d - 1, a); // -1: means minus the n.right
       return true;
     }
-    boolean l = dfs(node.left, dis, K, result, target), r = dfs(node.right, dis, K, result, target);
-    // Each node in the tree has unique value
-    if ((l || r) && dis[0] == K) result.add(node.val);
-    if (l && dis[0] < K && node.right != null) bfs(node.right, K - (dis[0] + 1), result);
-    if (r && dis[0] < K && node.left != null) bfs(node.left, K - (dis[0] + 1), result);
-
-    if (l || r) dis[0]++;
-    return l || r;
+    return false;
   }
 
-  // BFS.
-  // level is calculated from node from which is level 0
-  // Assume node is not null and level >=0
-  // get children node value at specific level
-  private void bfs(TreeNode node, int level, List<Integer> r) {
+  private static void bfs(TreeNode node, int d, List<Integer> a) {
     if (node == null) return;
-    if (level == 0) {
-      r.add(node.val);
-      return;
+    if (d == 0) {
+      a.add(node.val);
+      return; // need return
     }
-    bfs(node.left, level - 1, r);
-    bfs(node.right, level - 1, r);
+    bfs(node.left, d - 1, a);
+    bfs(node.right, d - 1, a);
   }
 }

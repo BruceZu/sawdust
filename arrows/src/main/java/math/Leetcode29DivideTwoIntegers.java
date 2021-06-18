@@ -158,8 +158,8 @@ public class Leetcode29DivideTwoIntegers {
 
     int m = 0;
     while (a <= (b << 1) && (b << 1) < 0) {
-      m += 1;
-      b += b;
+      m++;
+      b <<= 1;
     }
     // Binary Long Division
     int r = 0; // quotient=Dividend ÷ divisor

@@ -25,15 +25,13 @@ public class Leetcode953VerifyinganAlienDictionary {
    order.length == 26
    All characters in words[i] and order are English lowercase letters."
 
-   Understanding:
-    use Map or array int[26]
-
-    O(N*M) time M is the longest word in words and N is words length
+    O(N*M) time. M is the longest word in words and N is words length
+    O(L) space L is order length.
   */
   public boolean isAlienSorted(String[] words, String order) {
     // TODO: check null
     Map<Character, Integer> d = new HashMap();
-    for (int i = 0; i < order.length(); i++) d.put(order.charAt(i), i + 1); // O(N)
+    for (int i = 0; i < order.length(); i++) d.put(order.charAt(i), i); // O(N)
     // O(N*M) M is the longest word in words
     for (int i = 0; i <= words.length - 2; i++) {
       if (!inOrder(words[i], words[i + 1], d)) return false;
@@ -42,15 +40,10 @@ public class Leetcode953VerifyinganAlienDictionary {
   }
 
   private boolean inOrder(String l, String r, Map<Character, Integer> d) {
-    int i = 0, j = 0;
-    while (i < l.length() && j < r.length()) {
-      // Note the meaning of lexicographically order
-      if (d.get(l.charAt(i)) < d.get(r.charAt(j))) return true;
-      if (d.get(l.charAt(i)) > d.get(r.charAt(j))) return false;
-      // same
-      i++;
-      j++;
-    }
-    return i == l.length();
+    int i = 0;
+    while (i < Math.min(l.length(), r.length()) && l.charAt(i) == r.charAt(i)) i++;
+    if (i < Math.min(l.length(), r.length())) return d.get(l.charAt(i)) < d.get(r.charAt(i));
+    // assume all char in 'words' are included in 'order'
+    return l.length() <= r.length();
   }
 }
