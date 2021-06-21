@@ -17,49 +17,54 @@ package two_pointer;
 
 import java.util.Arrays;
 
-/**
- * <pre> <a href="https://leetcode.com/problems/3sum-smaller/">LeetCode</a>
- * 259. 3Sum Smaller
- * https://leetcode.com/problems/3sum-smaller/
- * Difficulty: Medium <pre>
- * Given an array of n integers nums and a target,
- * find the number of index triplets i, j, k
- * with 0 <= i < j < k < n that satisfy the condition nums[i] + nums[j] + nums[k] < target.
- *
- * For example, given nums = [-2, 0, 1, 3], and target = 2.
- *
- * Return 2. Because there are two triplets which sums are less than 2:
- *
- * [-2, 0, 1]
- * [-2, 0, 3]
- * Follow up:
- * Could you solve it in O(n2) runtime?
- *
- * Hide Company Tags Google
- * Hide Tags: Array, Two Pointers
- * Hide Similar Problems: (M) 3Sum (M) 3Sum Closest
- */
 public class Leetcode259The3SumSmaller {
 
-    // As it is the number of index triplets i, j, k
-    // with 0 <= i < j < k < n that satisfy the condition nums[i] + nums[j] + nums[k] < target.
-    // ==> do not care about duplicate cases
-    public int threeSumSmaller2(int[] nums, int target) {
-        int result = 0;
-        Arrays.sort(nums);
-        for (int i = 0; i <= nums.length - 3; i++) {
-            if (nums[i] * 3 >= target) break; // improvement
-            int l = i + 1;
-            int r = nums.length - 1;
-            while (l < r) {
-                if (nums[i] + nums[l] + nums[r] < target) {
-                    result += r - l;
-                    l++;
-                } else {
-                    r--;
-                }
-            }
+  /*
+  Given an array of n integers nums and a target,
+     find the number of index triplets i, j, k
+     with 0 <= i < j < k < n that satisfy the condition
+     nums[i] + nums[j] + nums[k] < target.
+
+    nums = [-2, 0, 1, 3], and target = 2.
+    Return 2. because:  [-2, 0, 1], [-2, 0, 3]
+
+  Idea:
+      n == nums.length
+      0 <= n <= 3500
+
+     -100 <= nums[i] <= 100
+     -100 <= target <= 100
+     so use int[]  and int for nums and target
+
+     cases:
+      nums is null return 0;
+      nums length <=2 return 0;
+      nums is duplicated [2,2,2,2] target is 8 return 0
+                         [2,2,2,2] target is 9 return 4
+      general nums is [ -1, 3, 1,2]
+      sort it: [ -1, 1, 2, 3]
+      duplicate value are accepted,  only require the the index is unique
+
+    2 pointers for 2 sum
+    O(N^2) time, O(1) space
+    easy fault:
+     - forget to try l++
+     - did not check duplicate vale allowed
+  */
+  public int threeSumSmaller(int[] A, int target) {
+    if (A == null || A.length <= 2) return 0;
+    Arrays.sort(A);
+    int a = 0;
+    for (int i = 0; i < A.length; i++) {
+      int l = i + 1, r = A.length - 1;
+      while (l < r) {
+        if (A[i] + A[l] + A[r] >= target) r--;
+        else {
+          a += r - l;
+          l++;
         }
-        return result;
+      }
     }
+    return a;
+  }
 }

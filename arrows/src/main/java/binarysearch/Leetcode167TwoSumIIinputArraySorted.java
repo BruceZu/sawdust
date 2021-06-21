@@ -15,113 +15,28 @@
 
 package binarysearch;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+/*
+ Ask:  a array of integers numbers sorted in non-decreasing order
+       Return the indices of the two numbers (1-indexed) as an integer array answer of size 2,
+       where 1 <= answer[0] < answer[1] <= numbers.length.
+       they add up to a specific target number
 
-/**
- * <pre>
- * <a href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/">LeetCode</a>
- */
+       Assume here is exactly one solution.
+       You may not use the same element twice.
+
+ 2 points
+ O(N) time O(1) space
+*/
 public class Leetcode167TwoSumIIinputArraySorted {
-  // Input array is sorted
-  // assume each input would have exactly one solution and you may not use the same element twice.
-  // using 2 pointer: O(N)
-  public int[] twoSum3(int[] numbers, int target) {
-    int i = 0, j = numbers.length - 1;
-    while (i < j) {
-      int sum2 = numbers[i] + numbers[j];
-      if (sum2 == target) {
-        return new int[] {i + 1, j + 1};
-      } else if (sum2 < target) {
-        i++;
-      } else {
-        j--;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * assume each input would have exactly one solution and you may not use the same element twice.
-   *
-   * <p>using map: O(N) to keep number and its index, target - current number, checking if remaining
-   * exists in map numbers can be unsorted.
-   */
-  public int[] twoSum2(int[] numbers, int target) {
-    Map<Integer, Integer> indexOfRemaining = new HashMap<>();
-    for (int i = 0; i < numbers.length; i++) {
-      int remaining = target - numbers[i];
-      //  if there is duplicated members
-      //  need add check remaining ==  numbers[i]
-      if (indexOfRemaining.containsKey(remaining)) {
-        return new int[] {indexOfRemaining.get(remaining) + 1, i + 1};
-      }
-      indexOfRemaining.put(numbers[i], i);
-    }
-    return null;
-  }
-
-  // Input array is sorted
-  // assume each input would have exactly one solution and you may not use the same element twice.
-  // using binary search O(logn)
-  //
-  // Cases:
-  // target  13; [0, 1, 2, 9, 12, 20]
-  // target  12;  [-12,0,3,4,12]
-  // target  100; [1 3 5 7 9 ..... 47 49 50 52 54 .... 94 96 98]
-  // target  5; [0,0,0,0 0,0,0,0,2,3,9,9,9,9,9,9,9,9,9,9,9,9,9,9]
-  //
-  public static int[] twoSum(int[] numbers, int target) {
-    // input checking
-    int candidateL = 0;
-    int candidateLv = numbers[0];
-
-    int candidateR = numbers.length; // just for initial
-    int candidateRv = target - candidateLv;
-
-    int searchFrom;
-    int searchTo;
-    while (true) { //assume each input would have exactly one solution, so without validing the scope of search from and to, candidate l and candidate r
-      // find the index of the right candidate with remaining value
-      searchFrom = candidateL + 1; // not use the same element twice
-      searchTo = candidateR - 1;
-      candidateR = binarySeachIndex(numbers, searchFrom, searchTo, candidateRv);
-      if (numbers[candidateL] + numbers[candidateR] == target) {
-        return new int[] {candidateL + 1, candidateR + 1};
-      } else {
-        candidateLv = target - numbers[candidateR];
-      }
-
-      // find the index of the left candidate with remaining value
-      searchFrom = candidateL + 1;
-      searchTo = candidateR - 1; // not use the same element twice
-      candidateL = binarySeachIndex(numbers, searchFrom, searchTo, candidateLv);
-      if (numbers[candidateL] + numbers[candidateR] == target) {
-        return new int[] {candidateL + 1, candidateR + 1};
-      } else {
-        candidateRv = target - numbers[candidateL];
-      }
-    }
-  }
-
-  //    Arrays.binarySearch()
-  public static int binarySeachIndex(int[] nums, int l, int r, long RemainingCandidate) {
+  public int[] twoSum(int[] numbers, int target) {
+    int l = 0, r = numbers.length - 1;
     while (l < r) {
-      int mid = (l + r) / 2;
-      if (nums[mid] > RemainingCandidate) {
-        r = mid - 1;
-      } else if (nums[mid] < RemainingCandidate) {
-        l = mid + 1;
-      } else {
-        return mid;
-      }
+      int sum = numbers[l] + numbers[r];
+      if (sum == target) {
+        return new int[] {l + 1, r + 1};
+      } else if (sum < target) l++;
+      else r--;
     }
-    return l; // one element left, it still may be result
-  }
-
-  public static void main(String[] args) {
-    //
-    System.out.println(Arrays.toString(twoSum(new int[] {1, 4, 7, 9, 20, 29}, 16)));
+    return null; // not reach here
   }
 }

@@ -17,46 +17,59 @@ package map;
 
 import java.util.*;
 
-/**
- * <a href="https://leetcode.com/problems/two-sum-iii-data-structure-design/?tab=Description">LeetCode</a>
- * find only need a boolean=> It is enough to check if there is one exists.
- */
 public class Leetcode170TwoSumIIIDataStructureDesign {
-    //=> maybe duplicated, even though map can be used here,
-    // pros: do not need sort O(nlogn)
-    static class TwoSum {
-        Map<Integer, Integer> numToCounts;
+  /*
+  space O(N)
+   */
+  private List<Integer> l = new ArrayList();
+  boolean sorted = false;
 
-        public TwoSum() {
-            numToCounts = new HashMap();
-        }
+  // O(1) time
+  public void add(int number) {
+    l.add(number);
+    sorted = false;
+  }
 
-        // O(1)
-        public void add(int number) {
-            Integer intToCounts = numToCounts.get(number);
-            numToCounts.put(number, intToCounts == null ? 1 : intToCounts + 1);
-        }
-
-        //Find if there exists any pair of numbers which sum is equal to the value.
-        // O(N)
-        public boolean find(int value) {
-            for (Map.Entry<Integer, Integer> cur : numToCounts.entrySet()) {
-                int curNum = cur.getKey();
-                int curNumCounts = cur.getValue();
-                int left = value - curNum;
-                if (curNum == left && curNumCounts > 1  || curNum != left && numToCounts.containsKey(left)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+  // O(NlogN) time
+  public boolean find(int value) {
+    if (!sorted) {
+      Collections.sort(l);
+      sorted = true;
     }
-
-    public static void main(String[] args) {
-        // Your TwoSum object will be instantiated and called as such:
-        TwoSum obj = new TwoSum();
-        obj.add(0);
-        boolean param_2 = obj.find(0);
-        System.out.println(param_2);
+    Integer[] A = new Integer[l.size()];
+    l.toArray(A);
+    int l = 0, r = A.length - 1;
+    while (l < r) {
+      int sum = A[l] + A[r];
+      if (A[l] + A[r] == value) return true;
+      else if (sum < value) l++;
+      else r--;
     }
+    return false;
+  }
+}
+
+class TwoSum {
+  // space O(N)
+  Map<Integer, Integer> map;
+
+  public TwoSum() {
+    map = new HashMap();
+  }
+
+  // O(1) time
+  public void add(int number) {
+    map.put(number, map.getOrDefault(number, 0) + 1);
+  }
+
+  // O(N) time
+  public boolean find(int value) {
+    for (Map.Entry<Integer, Integer> e : map.entrySet()) {
+      int k = e.getKey();
+      int f = e.getValue();
+      int c = value - k;
+      if (k == c && f > 1 || k != c && map.containsKey(c)) return true;
+    }
+    return false;
+  }
 }

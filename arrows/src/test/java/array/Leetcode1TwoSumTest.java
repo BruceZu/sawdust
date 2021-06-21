@@ -15,8 +15,6 @@
 
 package array;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -56,24 +54,5 @@ public class Leetcode1TwoSumTest {
         this.target = targetAndExpectedResult[0];
         this.i = targetAndExpectedResult[1];
         this.j = targetAndExpectedResult[2];
-    }
-
-    @Test(timeout = 50L, expected = Test.None.class)
-    public void test() {
-        int[] r = Leetcode1twoSum.twoSum(array, target);
-        Assert.assertEquals(r[0], i);
-        Assert.assertEquals(r[1], j);
-        r = Leetcode1twoSum.twoSum(array, target);
-        Assert.assertEquals(r[0], i);
-        Assert.assertEquals(r[1], j);
-        r = Leetcode1twoSum2.twoSum(array, target);
-        Assert.assertEquals(r[0], i);
-        Assert.assertEquals(r[1], j);
-        r = Leetcode1twoSum3.twoSum(array, target);
-        Assert.assertEquals(r[0], i);
-        Assert.assertEquals(r[1], j);
-        r = Leetcode1twoSum3.twoSum3(array, target);
-        Assert.assertEquals(r[0], i);
-        Assert.assertEquals(r[1], j);
     }
 }

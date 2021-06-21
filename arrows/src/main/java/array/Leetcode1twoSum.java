@@ -15,78 +15,34 @@
 
 package array;
 
-/**
- * <pre>
- * 1. Two Sum
- * Difficulty: Easy
- * Given an array of integers, return indices of the two numbers such that they add up to a specific target.
- *
- * You may assume that each input would have <strong>exactly one</strong>solution.
- *
- * Example:
- * Given nums = [2, 7, 11, 15], target = 9,
- *
- * Because nums[0] + nums[1] = 2 + 7 = 9,
- * return [0, 1].
- * The return format is zero-based indices.
- *
- * tags Array Hash Table
- * Similar Problems (M)
- *      3Sum (M)
- *      4Sum (M)
- *      Two Sum II - Input array is sorted (E)
- *      Two Sum III - Data structure design
- *   ===============================================================================================
- *     Idea: 1 HashTable {@link Leetcode1twoSum2 }  O(N)
- *           2 same like, using a array. assume the value is integer, value maybe <0.
- *           3 O(nlogn)  {@link Leetcode1twoSum3}
- *               sort (O(nlogn)). then using 2 pointer or binary search
- *               map to original index, (Cons: this is not always right. can not work for all pairs)
- *               [1,8,2,8,4,8], 16
- *               after sort:
- *               [1,2,4,8,8,8]
- *
- *    performance improvement
- *       -A: replace Integer[] with int[].
- *         this will require make sure map[nums[0]]!=0.
- *         bit manipulation is better than +/- operation according to leetcode test data.
- *       -B: sacrificing the 'other' and 'key' variables;
- *       -C: add 'target -= mi;' before the loop.
- *
- *      cons:  A and B will make the code less readable.
- *
- *   @see <a href="https://leetcode.com/problems/two-sum/">leetcode </a>
- *   @see <a href="https://discuss.leetcode.com/topic/50160/does-anybody-know-the-fastest-java-solution-2ms/6">discuss </a>
- */
+import java.util.HashMap;
+import java.util.Map;
+
 public class Leetcode1twoSum {
-  // runtime O(N), space depends on value of min, max and target
-  // wrong solutions
-  public static int[] twoSum(int[] nums, int target) {
-    int max = nums[0], min = nums[0];
-    for (int i = 1; i < nums.length; i++) {
-      if (nums[i] > max) {
-        max = nums[i];
-      }
-      if (nums[i] < min) {
-        min = nums[i];
-      }
-    }
+  /*
+  Ask:
+   Given an array of integers nums and an integer target,
+   return indices of the two numbers such that they add up to target。
+   assume that each input would have exactly one solution
 
-    int mi = Math.min(min, target - max);
-    int ma = Math.max(max, target - min);
 
-    Integer[] map = new Integer[ma - mi + 1];
-    target = target - mi;
+    2 <= nums.length <= 10^4
+    -10^9 <= nums[i] <= 10^9
+    -10^9 <= target <= 10^9
+    Only one valid answer exists.
+
+    O(N) time and space
+  */
+
+  public int[] twoSum(int[] nums, int target) {
+    if (nums == null || nums.length < 2) return null;
+    Map<Integer, Integer> map = new HashMap();
     for (int i = 0; i < nums.length; i++) {
-      int key = target - nums[i];
-      if (map[key] != null) {
-        // assume that each input would have <strong>exactly one</strong>solution.
-        // assume the array is not sorted
-        return new int[] {map[key], i};
-      } else {
-        map[nums[i] - mi] = i;
+      if (map.containsKey(target - nums[i])) {
+        return new int[] {map.get(target - nums[i]), i};
       }
+      map.put(nums[i], i);
     }
-    return new int[] {-1, -1}; // -1 as not found, for test
+    return null; // will not reach here by assumption
   }
 }

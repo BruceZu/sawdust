@@ -18,60 +18,93 @@ package hash;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
-Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k, l)
-there are such that A[i] + B[j] + C[k] + D[l] is zero.
-
-All A, B, C, D have same length of N, 0 ≤ N ≤ 500.
-All integers are in the range of -2^28 to 2^28 - 1
-the result is guaranteed to be at most 2^31 - 1.
- */
 public class Leetcode454_4SumII {
-  // O(N^2) time and space
-  public int fourSumCount2(int[] A, int[] B, int[] C, int[] D) {
-    // 'All integers are in the range of -2^28 to 2^28 - 1'
-    // So sum of 4*i is still be use presented with integer
-    int N = A.length;
-    // use hash map to keep sum of 2 number and its counts
-    // the value of sum can be repeated.
-    // A and B
-    Map<Integer, Integer> up = new HashMap<Integer, Integer>();
-    // C and D
-    Map<Integer, Integer> down = new HashMap<Integer, Integer>();
+  /*
+  Ask:
+   Given four integer arrays nums1, nums2, nums3, and nums4
+   all of length n, return the number of tuples (i, j, k, l) such that:
 
+      0 <= i, j, k, l < n
+      nums1[i] + nums2[j] + nums3[k] + nums4[l] == 0
+
+
+      n == nums1.length
+      n == nums2.length
+      n == nums3.length
+      n == nums4.length
+      1 <= n <= 200
+      -228 <= nums1[i], nums2[i], nums3[i], nums4[i] <= 228
+
+   cases:
+    nums1 = [1,2], nums2 = [-2,-1], nums3 = [-1,2], nums4 = [0,2]
+    Output: 2
+      two tuples are:
+      1. (0, 0, 0, 1) -> nums1[0] + nums2[0] + nums3[0] + nums4[1] = 1 + (-2) + (-1) + 2 = 0
+      2. (1, 1, 0, 0) -> nums1[1] + nums2[1] + nums3[0] + nums4[0] = 2 + (-1) + (-1) + 0 = 0
+
+    Input: nums1 = [0], nums2 = [0], nums3 = [0], nums4 = [0]
+    Output: 1
+
+   Idea:
+     duplicated value is accepted: A[i]  B[j]  C[i]  D[j] are same as A[i2] B[j2] C[i2] D[j2]
+   */
+  // O(N^2) time and space
+  public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
+    // 0 <= i, j, k, l < n
+    // so any array is not null
+    // arrays are all have the same length
+    int N = A.length;
+    Map<Integer, Integer> m = new HashMap();
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++) {
-        up.put(A[i] + B[j], up.getOrDefault(A[i] + B[j], 0) + 1);
-        down.put(C[i] + D[j], down.getOrDefault(C[i] + D[j], 0) + 1);
+        int v = A[i] + B[j];
+        m.put(A[i] + B[j], m.getOrDefault(v, 0) + 1);
       }
     }
 
-    int r = 0; // result
-
-    for (HashMap.Entry<Integer, Integer> e : up.entrySet()) {
-      if (down.containsKey(-e.getKey())) r += e.getValue() * down.get(-e.getKey());
+    int r = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        int v = C[i] + D[j];
+        r += m.getOrDefault(-v, 0);
+      }
     }
     return r;
   }
 
-  // save one variable
-  // O(N^2) time and space
-  public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
-    int N = A.length;
-    Map<Integer, Integer> up = new HashMap<Integer, Integer>();
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        up.put(A[i] + B[j], up.getOrDefault(A[i] + B[j], 0) + 1);
-      }
+  // --------------------------------------------------------------------------
+  /*
+   Idea:
+    K sum: make the above idea general
+    k arrays:
+    use a map sum:counts of half of k arrays [0, l.length / 2)
+    calculate the answer from the left arrays index range [l.length / 2, length)
+
+   Easy fault:
+     forget return in halfSumInMap
+
+   O(N^e) time, space  e=max{N/2, N-N/2}, space for the map;
+  */
+  public int fourSumCount2(int[] A, int[] B, int[] C, int[] D) {
+    int[][] as = new int[][] {A, B, C, D};
+    Map<Integer, Integer> m = new HashMap();
+    halfSumInMap(as, m, 0, 0);
+    return calculate(as, m, as.length / 2, 0);
+  }
+
+  private void halfSumInMap(int[][] as, Map<Integer, Integer> m, int i, int sum) {
+    if (i == as.length / 2) {
+      m.put(sum, m.getOrDefault(sum, 0) + 1);
+      return;
     }
-    int r = 0; // result
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        r += up.getOrDefault(-(C[i] + D[j]), 0);
-        //        if (up.containsKey(-(C[i] + D[j]))) {
-        //          r += up.get(-(C[i] + D[j]));
-        //        }
-      }
+    for (int v : as[i]) halfSumInMap(as, m, i + 1, sum + v);
+  }
+
+  private int calculate(int[][] as, Map<Integer, Integer> m, int i, int target) {
+    if (i == as.length) return m.getOrDefault(target, 0);
+    int r = 0;
+    for (int v : as[i]) {
+      r += calculate(as, m, i + 1, target - v);
     }
     return r;
   }

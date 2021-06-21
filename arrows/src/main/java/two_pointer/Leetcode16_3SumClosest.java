@@ -17,52 +17,49 @@ package two_pointer;
 
 import java.util.Arrays;
 
-/**
- * <a href="https://leetcode.com/problems/3sum-closest/">Leetcode</a>
- * <a href="http://stackoverflow.com/questions/18565485/why-is-absolute-of-integer-min-value-equivalent-to-integer-min-value">
- * absolute-of-integer-min-value-equivalent-to-integer-min-value
- * </a>
- */
 public class Leetcode16_3SumClosest {
 
-    /**
-     * assume that each input would have exactly one solution.
-     * 3SUM -> 2 SUM  2 pointer
-     * O(N*N)
-     * improvement: check both said.
-     */
-    public static int threeSumClosest(int[] nums, int target) {
-        Arrays.sort(nums);
-        int result = 0;
-        int abc = Integer.MAX_VALUE;
-        for (int i = 0; i < nums.length - 2; i++) {// i scope
+  /*
+  Ask:
+  Given an array nums of n integers and an integer target,
+  find three integers in nums such that the sum is closest to target.
+  Return the sum of the three integers.
+  You may assume that each input would have exactly one solution.
 
-            for (int j = i + 1, k = nums.length - 1; j < k; ) {
-                int curSum = nums[i] + nums[j] + nums[k];
-                if (curSum == target) {
-                    return target;
-                } else if (curSum > target) {
-                    k--;
-                    if (curSum - target < abc) {
-                        abc = curSum - target;
-                        result = curSum;
-                    }
-                } else {
-                    j++;
-                    if (target - curSum < abc) {
-                        abc = target - curSum;
-                        result = curSum;
-                    }
-                }
-            }
+  3 <= nums.length <= 10^3
+  -10^3 <= nums[i] <= 10^3
+  -10^4 <= target <= 10^4
+
+  So user int[] and int for nums and target
+  cases:
+      note: 3 <= nums.length <= 10^3
+      [2,2,2,2], 8, return 0;
+      note: You may assume that each input would have
+            exactly one solution
+
+   O(N^2)time, O(1）assume Arrays.sort(A) use O(1) space
+   Arrays.sort(A):  O(NlogN) time, space is depends on, O(N) or O(1)
+  */
+  public int threeSumClosest(int[] A, int target) {
+    // assume that each input would have exactly one solution
+    // so need not check if these initial values has been updated at last.
+    int a = 0, d = Integer.MAX_VALUE;
+    Arrays.sort(A);
+    outer:
+    for (int i = 0; i < A.length; i++) {
+      int l = i + 1, r = A.length - 1;
+      while (l < r) {
+        int sum = A[i] + A[l] + A[r];
+        int cd = Math.abs(sum - target);
+        if (cd < d) {
+          a = sum;
+          d = cd;
         }
-        return result;
+        if (sum < target) l++;
+        else if (sum > target) r--;
+        else break outer;
+      }
     }
-
-    public static void main(String[] args) {
-        //System.out.println(threeSumClosest(new int[]{0, 0, 0}, 1));
-        System.out.println(threeSumClosest(new int[]{0, 1, 2}, 0));
-        System.out.println(Integer.toBinaryString(Integer.MIN_VALUE));
-        System.out.println("0" + Integer.toBinaryString(Integer.MAX_VALUE));
-    }
+    return a;
+  }
 }
