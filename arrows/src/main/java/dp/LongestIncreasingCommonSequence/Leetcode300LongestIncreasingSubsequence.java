@@ -16,47 +16,60 @@
 package dp.LongestIncreasingCommonSequence;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Leetcode300LongestIncreasingSubsequence {
 
   /*
+
+  Input: nums = [10,9,2,5,3,7,101,18]
+  Output: 4
+
+  Input: nums = [0,1,0,3,2,3]
+  Output: 4
+
+  Input: nums = [7,7,7,7,7,7,7]
+  Output: 1
+
   Idea:
   Just like locate right seat in country cinema to make sure
   not hiding other to watch the film.
   smaller one should stand before the taller one(replace)
   tallest one should stand alone(append)
-  */
-  // O(NlogN) time and O(N) space
-  static int lengthOfLISOriginal(int A[]) {
-    if (A == null || A.length == 0) return 0;
-    int[] a = new int[A.length];
-    int size;
 
-    a[0] = A[0];
-    size = 1;
-    for (int n : A) { // O(n)
-      // if (A[i - 1] == n) continue; // continued duplicated number, performance
-      if (n < a[0]) a[0] = n; // replace. Note here: not insert
-      else if (n > a[size - 1]) a[size++] = n; // apend
-      else { // find and replace.
-        // sure not n is in the scope [a[0], a[size-1]]
-        int il = Arrays.binarySearch(a, 0, size, n);
-        if (il < 0) il = -(il + 1);
-        a[il] = n;
+   O(NlogN) time and O(N) space
+  */
+  public int lengthOfLIS(int[] nums) {
+    int[] r = new int[nums.length];
+    int size = 0;
+    for (int i = 0; i < nums.length; i++) {
+      int idx = Arrays.binarySearch(r, 0, size, nums[i]);
+      if (idx < 0) {
+        idx = ~idx;
+        r[idx] = nums[i];
+        if (idx == size) size++;
       }
     }
     return size;
   }
 
-  public int lengthOfLIS(int[] nums) {
-    int[] a = new int[nums.length];
-    int size = 0;
-    for (int n : nums) {
-      int i = Arrays.binarySearch(a, 0, size, n);
-      if (i < 0) i = -(i + 1);
-      a[i] = n;
-      if (i == size) size++;
+  /*
+    1 <= nums.length <= 2500
+    -104 <= nums[i] <= 104
+  */
+  public int lengthOfLIS2(int[] nums) {
+    List<Integer> r = new LinkedList();
+    r.add(nums[0]);
+    for (int i = 1; i < nums.length; i++) {
+      int idx = Collections.binarySearch(r, nums[i]);
+      if (idx < 0) {
+        idx = ~idx;
+        if (idx == r.size()) r.add(nums[i]);
+        else r.set(idx, nums[i]);
+      }
     }
-    return size;
+    return r.size();
   }
 }

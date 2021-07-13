@@ -15,8 +15,7 @@
 
 package dp;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Leetcode1155NumberofDiceRollsWithTargetSum {
   /*
@@ -80,5 +79,20 @@ public class Leetcode1155NumberofDiceRollsWithTargetSum {
       }
     }
     return dp[target];
+  }
+
+  public int lengthOfLIS(int[] nums) {
+    List<Integer> r = new LinkedList();
+    r.add(nums[0]);
+    for (int i = 1; i < nums.length; i++) {
+      int idx = Collections.binarySearch(r, nums[i]);
+      if (idx < 0) {
+        idx=~idx;
+        if(idx==0) r.add(0,nums[i]);
+        else if(idx==r.size()) r.add(nums[i]);
+        else r.set(~idx, nums[i]);
+      }
+    }
+    return r.size();
   }
 }
